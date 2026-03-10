@@ -10,13 +10,13 @@ def inject_base_css():
             @import url('https://fonts.googleapis.com/css2?family=Playfair+Display:wght@500;600;700&family=Source+Sans+3:wght@300;400;600&display=swap');
 
             :root {
-                --cocoa: #2A1B12;
-                --choco: #3A2418;
+                --cocoa: #22150F;
+                --choco: #362116;
                 --caramel: #9B5B2F;
-                --latte: #D9C2AA;
-                --cream: #F5EEE6;
-                --sand: #E8D9CB;
-                --paper: #FBF7F2;
+                --latte: #CDB59D;
+                --cream: #F0E6DB;
+                --sand: #E2D2C4;
+                --paper: #FAF5EE;
             }
 
             html, body, [class*="css"]  {
@@ -25,15 +25,19 @@ def inject_base_css():
             }
 
             .stApp {
-                background: radial-gradient(1200px 600px at 10% -10%, #F5EADF 0%, rgba(245,234,223,0.6) 50%, rgba(245,234,223,0) 70%),
-                            radial-gradient(900px 500px at 90% 0%, #E3D0BE 0%, rgba(227,208,190,0.4) 45%, rgba(227,208,190,0) 70%),
+                background: radial-gradient(1200px 600px at 10% -10%, #EBDCCB 0%, rgba(235,220,203,0.6) 50%, rgba(235,220,203,0) 70%),
+                            radial-gradient(900px 500px at 90% 0%, #D9C5B3 0%, rgba(217,197,179,0.4) 45%, rgba(217,197,179,0) 70%),
                             var(--cream);
             }
 
-            h1, h2, h3 {
+            h1, h2, h3, h4, h5, h6 {
                 font-family: 'Playfair Display', serif;
                 color: var(--cocoa);
                 letter-spacing: 0.2px;
+            }
+
+            p, span, label, li, div {
+                color: var(--cocoa);
             }
 
             [data-testid="stSidebar"], [data-testid="stSidebarNav"] {
@@ -44,7 +48,7 @@ def inject_base_css():
                 background: var(--sand);
                 padding: 10px 16px;
                 border-radius: 16px;
-                border: 1px solid rgba(58,36,24,0.10);
+                border: 1px solid rgba(54,33,22,0.12);
                 margin-bottom: 16px;
             }
 
@@ -56,7 +60,7 @@ def inject_base_css():
             }
 
             .stPageLink a {
-                color: #7A3F21;
+                color: #6F3A1D;
                 font-weight: 600;
                 text-decoration: none;
             }
@@ -68,9 +72,9 @@ def inject_base_css():
             .hero {
                 padding: 24px 28px;
                 border-radius: 18px;
-                background: linear-gradient(120deg, #F0E1D3 0%, #E2CBB4 45%, #D2B294 100%);
-                border: 1px solid rgba(58,36,24,0.12);
-                box-shadow: 0 16px 40px rgba(59,35,23,0.08);
+                background: linear-gradient(120deg, #EAD8C7 0%, #D9C2AB 45%, #CBAA8E 100%);
+                border: 1px solid rgba(54,33,22,0.14);
+                box-shadow: 0 16px 40px rgba(54,33,22,0.08);
             }
 
             .chip {
@@ -88,8 +92,12 @@ def inject_base_css():
                 padding: 16px;
                 border-radius: 16px;
                 background: var(--paper);
-                border: 1px solid rgba(58,36,24,0.10);
-                box-shadow: 0 8px 20px rgba(59,35,23,0.07);
+                border: 1px solid rgba(54,33,22,0.12);
+                box-shadow: 0 8px 20px rgba(54,33,22,0.07);
+            }
+
+            .product-card {
+                min-height: 230px;
             }
 
             .card-title {
@@ -100,7 +108,7 @@ def inject_base_css():
 
             .card-meta {
                 font-size: 13px;
-                color: rgba(42,27,18,0.7);
+                color: rgba(34,21,15,0.7);
                 margin-bottom: 8px;
             }
 
@@ -114,8 +122,8 @@ def inject_base_css():
                 display: inline-block;
                 padding: 4px 10px;
                 border-radius: 999px;
-                background: #E2CDB7;
-                color: #3A2418;
+                background: #E0C8B2;
+                color: #362116;
                 font-size: 12px;
                 margin-left: 8px;
             }
@@ -125,12 +133,12 @@ def inject_base_css():
                 border-radius: 14px;
                 background: var(--choco);
                 color: var(--paper);
-                box-shadow: 0 12px 30px rgba(59,35,23,0.22);
+                box-shadow: 0 12px 30px rgba(54,33,22,0.22);
             }
 
             .divider {
                 height: 1px;
-                background: rgba(58,36,24,0.12);
+                background: rgba(54,33,22,0.16);
                 margin: 10px 0 14px 0;
             }
 
@@ -149,10 +157,22 @@ def inject_base_css():
                 box-shadow: 0 10px 24px rgba(155,91,47,0.40);
             }
 
+            .stTextInput label, .stTextArea label, .stNumberInput label, .stSelectbox label, .stDateInput label, .stTimeInput label {
+                color: var(--cocoa) !important;
+                font-weight: 600;
+            }
+
             .stTextInput input, .stTextArea textarea, .stNumberInput input, .stSelectbox select {
                 border-radius: 10px;
-                border: 1px solid rgba(58,36,24,0.18);
+                border: 1px solid rgba(54,33,22,0.25);
                 background: #FFF;
+                color: var(--cocoa);
+            }
+
+            .stImage img {
+                height: 180px;
+                object-fit: cover;
+                border-radius: 14px;
             }
         </style>
         """,

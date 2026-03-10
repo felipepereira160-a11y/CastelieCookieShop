@@ -55,9 +55,9 @@ section_header("Dados", "Informacoes do cliente")
 
 col_a, col_b = st.columns(2)
 with col_a:
-    client_name = st.text_input("Nome completo")
-    whatsapp = st.text_input("WhatsApp")
-    email = st.text_input("Email")
+    client_name = st.text_input("Nome completo", placeholder="Ex: Maria Silva")
+    whatsapp = st.text_input("WhatsApp", placeholder="(11) 99999-0000")
+    email = st.text_input("Email", placeholder="cliente@email.com")
 with col_b:
     delivery_type = st.selectbox("Entrega ou retirada", ["Entrega", "Retirada"])
     delivery_date = st.date_input("Data", value=dt.date.today() + dt.timedelta(days=1))

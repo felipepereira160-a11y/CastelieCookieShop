@@ -48,7 +48,7 @@ for idx, item in enumerate(filtered):
             st.image(image_path, use_container_width=True)
         st.markdown(
             f"""
-            <div class="card">
+            <div class="card product-card">
                 <div class="card-title">{item['name']}</div>
                 <div class="card-meta">{item['category']} • {item['size']}</div>
                 <p>{item['description']}</p>
