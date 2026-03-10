@@ -91,23 +91,29 @@ st.markdown(
 )
 
 if st.button("Finalizar pedido"):
-    if not client_name or not whatsapp:
+    name_clean = client_name.strip()
+    whatsapp_clean = whatsapp.strip()
+    email_clean = email.strip()
+    address_clean = address.strip() if isinstance(address, str) else ""
+    note_clean = note.strip() if isinstance(note, str) else ""
+
+    if not name_clean or not whatsapp_clean:
         st.warning("Informe nome e WhatsApp para finalizar.")
-    elif delivery_type == "Entrega" and not address:
+    elif delivery_type == "Entrega" and not address_clean:
         st.warning("Informe o endereco de entrega.")
     else:
         now = dt.datetime.now()
         order = {
             "order_id": now.strftime("PED-%Y%m%d-%H%M%S"),
             "created_at": now.strftime("%Y-%m-%d %H:%M:%S"),
-            "client_name": client_name,
-            "whatsapp": whatsapp,
-            "email": email,
+            "client_name": name_clean,
+            "whatsapp": whatsapp_clean,
+            "email": email_clean,
             "delivery_type": delivery_type,
             "delivery_date": delivery_date.strftime("%Y-%m-%d"),
             "delivery_time": delivery_time.strftime("%H:%M"),
-            "address": address,
-            "notes": note,
+            "address": address_clean,
+            "notes": note_clean,
             "subtotal": float(subtotal),
             "delivery_fee": float(delivery_fee),
             "total": float(total),
