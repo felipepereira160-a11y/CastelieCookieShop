@@ -34,7 +34,7 @@ else:
 
 edited = st.data_editor(
     df,
-    use_container_width=True,
+    width="stretch",
     num_rows="dynamic",
     column_config={
         "price": st.column_config.NumberColumn("price", min_value=0.0, step=0.5, format="%.2f"),
