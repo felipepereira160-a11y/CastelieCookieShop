@@ -19,6 +19,9 @@ APP_ROOT = Path(__file__).resolve().parent
 REPO_ROOT = APP_ROOT.parents[1]
 CATALOG_PATH = REPO_ROOT / "data" / "catalog.json"
 ASSETS_DIR = REPO_ROOT / "assets"
+STATIC_DIR = APP_ROOT / "static"
+STATIC_PRODUCTS_DIR = STATIC_DIR / "products"
+STATIC_PRODUCTS_DIR.mkdir(parents=True, exist_ok=True)
 
 DEFAULT_CATALOG = [
     {
@@ -96,7 +99,7 @@ DEFAULT_CATALOG = [
 ]
 
 app = FastAPI(title="Castelie Cookie Shop")
-app.mount("/static", StaticFiles(directory=str(APP_ROOT / "static")), name="static")
+app.mount("/static", StaticFiles(directory=str(STATIC_DIR)), name="static")
 if ASSETS_DIR.exists():
     app.mount("/assets", StaticFiles(directory=str(ASSETS_DIR)), name="assets")
 
@@ -159,6 +162,12 @@ def admin_save(request: Request, password: str = Form(""), catalog_json: str = F
 @app.get("/api/catalog")
 def get_catalog():
     return load_catalog()
+
+
+@app.get("/api/assets-check")
+def assets_check():
+    files = sorted([p.name for p in STATIC_PRODUCTS_DIR.glob("*.*")])
+    return {"count": len(files), "files": files}
 
 
 @app.post("/api/order")
