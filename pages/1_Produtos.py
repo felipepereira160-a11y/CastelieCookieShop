@@ -65,9 +65,6 @@ for idx, item in enumerate(filtered):
                 <div class="card-title">{item['name']}</div>
                 <div class="card-meta">{item['category']} • {item['size']}</div>
                 <p>{item['description']}</p>
-                <div class="divider"></div>
-                <span class="price">{format_brl(item['price'])}</span>
-                <span class="badge">{item['highlight']}</span>
             </div>
             """,
             unsafe_allow_html=True,
@@ -79,6 +76,16 @@ for idx, item in enumerate(filtered):
             value=1,
             step=1,
             key=f"qty_{item['id']}",
+        )
+        st.markdown(
+            f"""
+            <div class="card" style="padding-top: 12px;">
+                <div class="divider"></div>
+                <span class="price">{format_brl(item['price'])}</span>
+                <span class="badge">{item['highlight']}</span>
+            </div>
+            """,
+            unsafe_allow_html=True,
         )
         if st.button("Adicionar ao carrinho", key=f"add_{item['id']}"):
             add_to_cart(item["id"], item["name"], item["price"], qty)
