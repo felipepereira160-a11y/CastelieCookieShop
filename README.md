@@ -42,21 +42,16 @@ $env:SMTP_TO="destino@gmail.com"
 
 O app faz `git add/commit/push` quando o pedido e finalizado.
 
-1. Configure o repositorio remoto:
+Localmente, use o Git Credential Manager.
+Em servidores (Render), configure variaveis:
 
 ```powershell
-git init
-git branch -M main
-git remote add origin https://github.com/felipepereira160-a11y/CastelieCookieShop.git
+$env:GIT_USERNAME="felipepereira160-a11y"
+$env:GIT_REPO="CastelieCookieShop"
+$env:GIT_TOKEN="seu_token_do_github"
+$env:GIT_BRANCH="main"
 ```
 
-2. Configure autenticacao:
+## Render (deploy)
 
-- Opcao A: usar Git Credential Manager (recomendado no Windows).
-- Opcao B: usar token pessoal do GitHub e fazer login no `git` quando pedir.
-
-Se seu branch principal nao for `main`, defina:
-
-```powershell
-$env:GIT_BRANCH="master"
-```
+O `render.yaml` ja esta configurado. Basta conectar o repo no Render.
