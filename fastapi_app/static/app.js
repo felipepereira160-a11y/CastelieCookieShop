@@ -1,5 +1,4 @@
-﻿const products = window.PRODUCTS || [];
-const cart = new Map();
+﻿const cart = new Map();
 
 const grid = document.getElementById('product-grid');
 const categorySelect = document.getElementById('category');
@@ -7,6 +6,8 @@ const searchInput = document.getElementById('search');
 const cartEl = document.getElementById('cart');
 const orderForm = document.getElementById('order-form');
 const statusEl = document.getElementById('order-status');
+
+let products = [];
 
 function formatBRL(value) {
   return value.toLocaleString('pt-BR', { style: 'currency', currency: 'BRL' });
@@ -155,6 +156,16 @@ orderForm.addEventListener('submit', async (event) => {
 searchInput.addEventListener('input', renderProducts);
 categorySelect.addEventListener('change', renderProducts);
 
-renderCategories();
-renderProducts();
-renderCart();
+async function init() {
+  try {
+    const resp = await fetch('/api/catalog');
+    products = await resp.json();
+  } catch (err) {
+    products = [];
+  }
+  renderCategories();
+  renderProducts();
+  renderCart();
+}
+
+init();

@@ -29,21 +29,23 @@ templates = Jinja2Templates(directory=str(APP_ROOT / "templates"))
 
 def load_catalog() -> List[Dict[str, Any]]:
     if not CATALOG_PATH.exists():
+        print(f"Catalogo nao encontrado: {CATALOG_PATH}")
         return []
     text = CATALOG_PATH.read_text(encoding="utf-8-sig")
-    return json.loads(text)
+    data = json.loads(text)
+    if not data:
+        print("Catalogo vazio.")
+    return data
 
 
 @app.get("/", response_class=HTMLResponse)
 def index(request: Request):
-    products = load_catalog()
-    return templates.TemplateResponse(
-        "index.html",
-        {
-            "request": request,
-            "products_json": json.dumps(products, ensure_ascii=False),
-        },
-    )
+    return templates.TemplateResponse("index.html", {"request": request})
+
+
+@app.get("/api/catalog")
+def get_catalog():
+    return load_catalog()
 
 
 @app.post("/api/order")
