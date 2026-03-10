@@ -134,3 +134,14 @@ if st.button("Finalizar pedido"):
         else:
             st.warning("Pedido registrado localmente, mas nao foi possivel enviar ao GitHub.")
             st.caption(git_msg)
+
+        st.markdown(
+            f"""
+            <div class="card">
+                <div class="card-title">Confirmacao do pedido</div>
+                <div class="card-meta">Pedido {order['order_id']} • {order['created_at']}</div>
+                <p>Total: <strong>{format_brl(order['total'])}</strong></p>
+            </div>
+            """,
+            unsafe_allow_html=True,
+        )
