@@ -8,7 +8,7 @@ CATALOG_PATH = Path(__file__).resolve().parent / "catalog.json"
 def load_catalog() -> List[Dict[str, Any]]:
     if not CATALOG_PATH.exists():
         return []
-    with CATALOG_PATH.open("r", encoding="utf-8") as handle:
+    with CATALOG_PATH.open("r", encoding="utf-8-sig") as handle:
         return json.load(handle)
 
 

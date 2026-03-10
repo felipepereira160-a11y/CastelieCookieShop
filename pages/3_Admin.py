@@ -6,12 +6,13 @@ import pandas as pd
 import streamlit as st
 
 from data.catalog_store import load_catalog, save_catalog
-from ui import inject_base_css, section_header
+from ui import inject_base_css, render_top_nav, section_header
 
 
 st.set_page_config(page_title="Admin | Cookie's Shop", page_icon="A", layout="wide")
 
 inject_base_css()
+render_top_nav()
 
 admin_pass = os.getenv("ADMIN_PASS", "admin")
 

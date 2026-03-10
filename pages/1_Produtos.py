@@ -4,12 +4,13 @@ import streamlit as st
 
 from data.catalog_store import load_catalog
 from state import add_to_cart, cart_items, cart_total, init_state
-from ui import inject_base_css, format_brl, section_header, find_product_image
+from ui import inject_base_css, format_brl, render_top_nav, section_header, find_product_image
 
 
 st.set_page_config(page_title="Produtos | Cookie's Shop", page_icon="P", layout="wide")
 
 inject_base_css()
+render_top_nav()
 init_state()
 
 section_header("Produtos", "Escolha seus favoritos")

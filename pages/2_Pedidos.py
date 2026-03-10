@@ -5,12 +5,13 @@ import streamlit as st
 from data.orders_store import append_order
 from git_utils import commit_and_push
 from state import cart_items, cart_total, init_state, remove_from_cart
-from ui import inject_base_css, format_brl, section_header
+from ui import inject_base_css, format_brl, render_top_nav, section_header
 
 
 st.set_page_config(page_title="Pedidos | Cookie's Shop", page_icon="O", layout="wide")
 
 inject_base_css()
+render_top_nav()
 init_state()
 
 section_header("Pedidos", "Finalize sua compra")
@@ -111,10 +112,13 @@ if st.button("Finalizar pedido"):
         }
 
         append_order(order)
-        ok, msg = commit_and_push([
-            "data/orders.csv",
-            "data/orders.xlsx",
-        ], f"Novo pedido {order['order_id']}")
+        ok, msg = commit_and_push(
+            [
+                "data/orders.csv",
+                "data/orders.xlsx",
+            ],
+            f"Novo pedido {order['order_id']}",
+        )
 
         if ok:
             st.success("Pedido registrado e enviado para o GitHub.")

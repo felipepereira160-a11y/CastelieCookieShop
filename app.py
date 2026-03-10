@@ -1,6 +1,6 @@
 ﻿import streamlit as st
 
-from ui import inject_base_css, section_header
+from ui import inject_base_css, render_top_nav, section_header
 
 
 st.set_page_config(
@@ -10,14 +10,15 @@ st.set_page_config(
 )
 
 inject_base_css()
+render_top_nav()
 
 st.markdown(
     """
     <div class="hero">
         <div class="chip">Cookie's Shop</div>
-        <h1>Cookies e bolo de pote feitos para impressionar.</h1>
-        <p style="font-size: 17px; max-width: 720px; color: rgba(43,27,18,0.78);">
-            Sabores artesanais, textura perfeita e combinacoes pensadas para festas, presentes e aquele momento especial.
+        <h1>Cookies, bolos de pote e doces com alma artesanal.</h1>
+        <p style="font-size: 17px; max-width: 720px; color: rgba(59,35,23,0.78);">
+            Sabores que lembram casa, texturas macias e combinacoes pensadas para festas, presentes e aquele momento especial.
         </p>
     </div>
     """,
