@@ -19,6 +19,81 @@ REPO_ROOT = APP_ROOT.parents[1]
 CATALOG_PATH = REPO_ROOT / "data" / "catalog.json"
 ASSETS_DIR = REPO_ROOT / "assets"
 
+DEFAULT_CATALOG = [
+    {
+        "id": "ck_classic",
+        "name": "Cookie Classico",
+        "category": "Cookies",
+        "price": 7.5,
+        "size": "120g",
+        "description": "Massa amanteigada com gotas de chocolate ao leite e toque de baunilha.",
+        "highlight": "Mais vendido",
+    },
+    {
+        "id": "ck_double",
+        "name": "Cookie Double Choc",
+        "category": "Cookies",
+        "price": 8.5,
+        "size": "130g",
+        "description": "Chocolate intenso com pedacos de chocolate meio amargo.",
+        "highlight": "Intenso",
+    },
+    {
+        "id": "ck_nut",
+        "name": "Cookie Castanhas",
+        "category": "Cookies",
+        "price": 9.0,
+        "size": "125g",
+        "description": "Mix de castanhas, caramelo salgado e base de chocolate.",
+        "highlight": "Crocante",
+    },
+    {
+        "id": "bp_brigadeiro",
+        "name": "Bolo de Pote Brigadeiro",
+        "category": "Bolo de Pote",
+        "price": 12.0,
+        "size": "240ml",
+        "description": "Camadas de bolo de chocolate com brigadeiro cremoso.",
+        "highlight": "Classico",
+    },
+    {
+        "id": "bp_ninho",
+        "name": "Bolo de Pote Ninho",
+        "category": "Bolo de Pote",
+        "price": 12.5,
+        "size": "240ml",
+        "description": "Bolo branco, creme de leite em po e toque de morango.",
+        "highlight": "Suave",
+    },
+    {
+        "id": "bp_red",
+        "name": "Bolo de Pote Red",
+        "category": "Bolo de Pote",
+        "price": 13.0,
+        "size": "240ml",
+        "description": "Red velvet com creme de cream cheese e ganache.",
+        "highlight": "Premium",
+    },
+    {
+        "id": "kit_party",
+        "name": "Kit Festa Mini",
+        "category": "Kits",
+        "price": 65.0,
+        "size": "6 unidades",
+        "description": "3 cookies + 3 bolos de pote. Ideal para compartilhar.",
+        "highlight": "Combo",
+    },
+    {
+        "id": "kit_family",
+        "name": "Kit Familia",
+        "category": "Kits",
+        "price": 120.0,
+        "size": "12 unidades",
+        "description": "6 cookies + 6 bolos de pote com sabores variados.",
+        "highlight": "Melhor custo",
+    },
+]
+
 app = FastAPI(title="Castelie Cookie Shop")
 app.mount("/static", StaticFiles(directory=str(APP_ROOT / "static")), name="static")
 if ASSETS_DIR.exists():
@@ -30,12 +105,17 @@ templates = Jinja2Templates(directory=str(APP_ROOT / "templates"))
 def load_catalog() -> List[Dict[str, Any]]:
     if not CATALOG_PATH.exists():
         print(f"Catalogo nao encontrado: {CATALOG_PATH}")
-        return []
-    text = CATALOG_PATH.read_text(encoding="utf-8-sig")
-    data = json.loads(text)
-    if not data:
-        print("Catalogo vazio.")
-    return data
+        return DEFAULT_CATALOG
+    try:
+        text = CATALOG_PATH.read_text(encoding="utf-8-sig")
+        data = json.loads(text)
+        if not data:
+            print("Catalogo vazio. Usando default.")
+            return DEFAULT_CATALOG
+        return data
+    except Exception as exc:
+        print(f"Falha ao ler catalogo: {exc}. Usando default.")
+        return DEFAULT_CATALOG
 
 
 @app.get("/", response_class=HTMLResponse)
