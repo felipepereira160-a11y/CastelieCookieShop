@@ -23,6 +23,25 @@ function renderCategories() {
   });
 }
 
+function buildImageTag(productId, name) {
+  const exts = ['jpg', 'jpeg', 'png', 'webp'];
+  const img = document.createElement('img');
+  img.alt = name;
+  img.dataset.base = `/assets/products/${productId}`;
+  img.dataset.extIndex = '0';
+  img.src = `${img.dataset.base}.${exts[0]}`;
+  img.onerror = () => {
+    const next = parseInt(img.dataset.extIndex, 10) + 1;
+    if (next < exts.length) {
+      img.dataset.extIndex = String(next);
+      img.src = `${img.dataset.base}.${exts[next]}`;
+    } else {
+      img.style.display = 'none';
+    }
+  };
+  return img;
+}
+
 function renderProducts() {
   const query = (searchInput.value || '').toLowerCase();
   const category = categorySelect.value || 'Todos';
@@ -34,8 +53,13 @@ function renderProducts() {
     .forEach((p) => {
       const card = document.createElement('div');
       card.className = 'card product-card';
-      card.innerHTML = `
-        <img src="/assets/products/${p.id}.jpg" alt="${p.name}" onerror="this.style.display='none'" />
+
+      const img = buildImageTag(p.id, p.name);
+      card.appendChild(img);
+
+      card.insertAdjacentHTML(
+        'beforeend',
+        `
         <h3>${p.name}</h3>
         <div class="meta">${p.category} • ${p.size}</div>
         <p>${p.description}</p>
@@ -44,7 +68,8 @@ function renderProducts() {
           <input type="number" min="1" value="1" />
           <button>Adicionar</button>
         </div>
-      `;
+      `
+      );
 
       const qtyInput = card.querySelector('input');
       const addBtn = card.querySelector('button');
@@ -115,8 +140,10 @@ orderForm.addEventListener('submit', async (event) => {
       statusEl.className = 'error';
       return;
     }
-    statusEl.textContent = `Pedido ${data.order_id} enviado. Total ${formatBRL(data.total)}.`;
-    statusEl.className = 'success';
+
+    const emailStatus = data.email_ok ? data.email_msg : `Email nao enviado: ${data.email_msg}`;
+    statusEl.textContent = `Pedido ${data.order_id} enviado. Total ${formatBRL(data.total)}. ${emailStatus}`;
+    statusEl.className = data.email_ok ? 'success' : 'error';
     cart.clear();
     renderCart();
   } catch (err) {

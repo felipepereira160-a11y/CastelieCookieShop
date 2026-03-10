@@ -15,10 +15,14 @@ from email_utils import send_order_email
 from git_utils import commit_and_push
 
 APP_ROOT = Path(__file__).resolve().parent
-CATALOG_PATH = Path(__file__).resolve().parents[1] / "data" / "catalog.json"
+REPO_ROOT = APP_ROOT.parents[1]
+CATALOG_PATH = REPO_ROOT / "data" / "catalog.json"
+ASSETS_DIR = REPO_ROOT / "assets"
 
 app = FastAPI(title="Castelie Cookie Shop")
 app.mount("/static", StaticFiles(directory=str(APP_ROOT / "static")), name="static")
+if ASSETS_DIR.exists():
+    app.mount("/assets", StaticFiles(directory=str(ASSETS_DIR)), name="assets")
 
 templates = Jinja2Templates(directory=str(APP_ROOT / "templates"))
 
