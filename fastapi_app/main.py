@@ -6,7 +6,7 @@ import os
 from pathlib import Path
 from typing import Any, Dict, List
 
-from fastapi import FastAPI, Request, Form
+from fastapi import FastAPI, Request, Form, UploadFile, File
 from fastapi.responses import HTMLResponse, JSONResponse
 from fastapi.staticfiles import StaticFiles
 from fastapi.templating import Jinja2Templates
@@ -126,6 +126,11 @@ def save_catalog(items: List[Dict[str, Any]]) -> None:
     CATALOG_PATH.write_text(json.dumps(items, ensure_ascii=False, indent=2), encoding="utf-8")
 
 
+def _is_admin(password: str) -> bool:
+    admin_pass = os.getenv("ADMIN_PASS", "admin")
+    return password == admin_pass
+
+
 @app.get("/", response_class=HTMLResponse)
 def index(request: Request):
     return templates.TemplateResponse("index.html", {"request": request})
@@ -146,17 +151,47 @@ def admin(request: Request, msg: str | None = None):
 
 @app.post("/admin", response_class=HTMLResponse)
 def admin_save(request: Request, password: str = Form(""), catalog_json: str = Form("")):
-    admin_pass = os.getenv("ADMIN_PASS", "admin")
-    if password != admin_pass:
+    if not _is_admin(password):
         return admin(request, msg="Senha incorreta.")
     try:
         items = json.loads(catalog_json)
         if not isinstance(items, list):
             raise ValueError("JSON invalido")
         save_catalog(items)
-        return admin(request, msg="Catalogo atualizado.")
+        git_ok, git_msg = commit_and_push(["data/catalog.json"], "Atualizar catalogo")
+        msg = "Catalogo atualizado." if git_ok else f"Catalogo atualizado, mas git falhou: {git_msg}"
+        return admin(request, msg=msg)
     except Exception as exc:
         return admin(request, msg=f"Erro ao salvar: {exc}")
+
+
+@app.post("/admin/upload")
+async def admin_upload(password: str = Form(""), product_id: str = Form(""), image: UploadFile = File(...)):
+    if not _is_admin(password):
+        return JSONResponse({"ok": False, "message": "Senha incorreta."}, status_code=401)
+
+    if not product_id:
+        return JSONResponse({"ok": False, "message": "Produto invalido."}, status_code=400)
+
+    ext = Path(image.filename or "").suffix.lower()
+    if ext not in {".jpg", ".jpeg", ".png", ".webp"}:
+        return JSONResponse({"ok": False, "message": "Formato invalido."}, status_code=400)
+
+    target = STATIC_PRODUCTS_DIR / f"{product_id}{ext}"
+
+    for old_ext in (".jpg", ".jpeg", ".png", ".webp"):
+        old = STATIC_PRODUCTS_DIR / f"{product_id}{old_ext}"
+        if old.exists() and old != target:
+            old.unlink()
+
+    content = await image.read()
+    target.write_bytes(content)
+
+    git_ok, git_msg = commit_and_push([str(target.relative_to(REPO_ROOT))], f"Atualizar imagem {product_id}")
+    if not git_ok:
+        return {"ok": True, "message": f"Imagem salva. Git falhou: {git_msg}"}
+
+    return {"ok": True, "message": "Imagem salva."}
 
 
 @app.get("/api/catalog")

@@ -100,6 +100,10 @@ h1, h2, h3 {
   padding: 16px;
 }
 
+.product-card {
+  min-height: 360px;
+}
+
 .product-card img {
   width: 100%;
   height: 160px;
@@ -200,6 +204,20 @@ h1, h2, h3 {
   margin-top: 10px;
   color: #8b2a2a;
   font-weight: 600;
+}
+
+.admin-grid {
+  grid-template-columns: repeat(auto-fit, minmax(260px, 1fr));
+}
+
+.admin-card input,
+.admin-card textarea {
+  width: 100%;
+  margin-bottom: 6px;
+}
+
+.admin-card .upload-btn {
+  margin-top: 6px;
 }
 
 @media (max-width: 900px) {
