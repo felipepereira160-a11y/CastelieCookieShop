@@ -131,9 +131,9 @@ if st.button("Finalizar pedido"):
         )
 
         if email_ok:
-            st.success("Email enviado com sucesso.")
+            st.success(email_msg)
         else:
-            st.warning(email_msg)
+            st.error(email_msg)
 
         if git_ok:
             st.success("Pedido registrado e enviado para o GitHub.")

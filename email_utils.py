@@ -24,7 +24,9 @@ def send_order_email(order: Dict[str, Any]) -> Tuple[bool, str]:
     smtp_to = _get_secret("SMTP_TO") or smtp_user
 
     if not smtp_user or not smtp_pass or not smtp_to:
-        return False, "SMTP nao configurado. Defina SMTP_USER, SMTP_PASS e SMTP_TO."
+        msg = "SMTP nao configurado. Defina SMTP_USER, SMTP_PASS e SMTP_TO."
+        print(msg)
+        return False, msg
 
     msg = EmailMessage()
     msg["Subject"] = f"Novo pedido {order['order_id']}"
@@ -57,6 +59,8 @@ def send_order_email(order: Dict[str, Any]) -> Tuple[bool, str]:
             server.starttls()
             server.login(smtp_user, smtp_pass)
             server.send_message(msg)
-        return True, "Email enviado."
+        return True, f"Email enviado para {smtp_to}."
     except Exception as exc:
-        return False, f"Falha ao enviar email: {exc}"
+        err = f"Falha ao enviar email: {exc}"
+        print(err)
+        return False, err
