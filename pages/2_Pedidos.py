@@ -63,9 +63,11 @@ with col_b:
     delivery_date = st.date_input("Data", value=dt.date.today() + dt.timedelta(days=1))
     delivery_time = st.time_input("Horario", value=dt.time(15, 0))
 
-address = ""
-if delivery_type == "Entrega":
-    address = st.text_area("Endereco de entrega", placeholder="Rua, numero, bairro e ponto de referencia")
+address = st.text_area(
+    "Endereco de entrega",
+    placeholder="Rua, numero, bairro e ponto de referencia",
+    disabled=delivery_type != "Entrega",
+)
 
 note = st.text_area("Observacoes", placeholder="Ex: sem castanhas, embalagem para presente")
 
