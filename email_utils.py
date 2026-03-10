@@ -3,6 +3,8 @@ import smtplib
 from email.message import EmailMessage
 from typing import Dict, Any, Tuple
 
+import requests
+
 
 def _get_secret(key: str) -> str:
     value = os.getenv(key, "")
@@ -16,7 +18,52 @@ def _get_secret(key: str) -> str:
         return ""
 
 
-def send_order_email(order: Dict[str, Any]) -> Tuple[bool, str]:
+def _send_resend(order: Dict[str, Any]) -> Tuple[bool, str]:
+    api_key = _get_secret("RESEND_API_KEY")
+    sender = _get_secret("RESEND_FROM")
+    recipient = _get_secret("SMTP_TO") or _get_secret("SMTP_USER")
+
+    if not api_key or not sender or not recipient:
+        return False, "Resend nao configurado. Defina RESEND_API_KEY e RESEND_FROM."
+
+    items_text = "\n".join([f"- {item['name']} x{item['qty']}" for item in order["items"]])
+    body = (
+        f"Pedido: {order['order_id']}\n"
+        f"Data: {order['created_at']}\n\n"
+        f"Cliente: {order['client_name']}\n"
+        f"WhatsApp: {order['whatsapp']}\n"
+        f"Email: {order.get('email', '')}\n\n"
+        f"Entrega: {order['delivery_type']}\n"
+        f"Data entrega: {order['delivery_date']}\n"
+        f"Horario: {order['delivery_time']}\n"
+        f"Endereco: {order.get('address', '')}\n\n"
+        f"Observacoes: {order.get('notes', '')}\n\n"
+        f"Itens:\n{items_text}\n\n"
+        f"Subtotal: R$ {order['subtotal']:.2f}\n"
+        f"Taxa entrega: R$ {order['delivery_fee']:.2f}\n"
+        f"Total: R$ {order['total']:.2f}\n"
+    )
+
+    try:
+        resp = requests.post(
+            "https://api.resend.com/emails",
+            headers={"Authorization": f"Bearer {api_key}"},
+            json={
+                "from": sender,
+                "to": [recipient],
+                "subject": f"Novo pedido {order['order_id']}",
+                "text": body,
+            },
+            timeout=15,
+        )
+        if resp.status_code >= 300:
+            return False, f"Resend falhou: {resp.status_code} {resp.text}"
+        return True, f"Email enviado para {recipient}."
+    except Exception as exc:
+        return False, f"Falha ao enviar email (Resend): {exc}"
+
+
+def _send_smtp(order: Dict[str, Any]) -> Tuple[bool, str]:
     smtp_host = _get_secret("SMTP_HOST") or "smtp.gmail.com"
     smtp_port = int(_get_secret("SMTP_PORT") or 587)
     smtp_user = _get_secret("SMTP_USER")
@@ -25,7 +72,6 @@ def send_order_email(order: Dict[str, Any]) -> Tuple[bool, str]:
 
     if not smtp_user or not smtp_pass or not smtp_to:
         msg = "SMTP nao configurado. Defina SMTP_USER, SMTP_PASS e SMTP_TO."
-        print(msg)
         return False, msg
 
     msg = EmailMessage()
@@ -61,6 +107,10 @@ def send_order_email(order: Dict[str, Any]) -> Tuple[bool, str]:
             server.send_message(msg)
         return True, f"Email enviado para {smtp_to}."
     except Exception as exc:
-        err = f"Falha ao enviar email: {exc}"
-        print(err)
-        return False, err
+        return False, f"Falha ao enviar email: {exc}"
+
+
+def send_order_email(order: Dict[str, Any]) -> Tuple[bool, str]:
+    if _get_secret("RESEND_API_KEY"):
+        return _send_resend(order)
+    return _send_smtp(order)

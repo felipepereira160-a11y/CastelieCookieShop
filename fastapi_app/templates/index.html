@@ -1,0 +1,76 @@
+﻿<!doctype html>
+<html lang="pt-br">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <title>Castelie Cookie Shop</title>
+    <link rel="stylesheet" href="/static/styles.css" />
+  </head>
+  <body>
+    <header class="top-nav">
+      <div class="brand">Castelie Cookie Shop</div>
+      <nav>
+        <a href="#produtos">Produtos</a>
+        <a href="#pedido">Pedido</a>
+      </nav>
+    </header>
+
+    <section class="hero">
+      <div class="chip">Cookies & Bolos</div>
+      <h1>Doces artesanais com textura perfeita.</h1>
+      <p>Cookies macios, bolos de pote cremosos e combinacoes para eventos, presentes e momentos especiais.</p>
+    </section>
+
+    <main class="layout">
+      <section id="produtos" class="products">
+        <h2>Produtos</h2>
+        <div class="filters">
+          <input id="search" type="text" placeholder="Buscar produto" />
+          <select id="category"></select>
+        </div>
+        <div id="product-grid" class="grid"></div>
+      </section>
+
+      <aside id="pedido" class="order">
+        <h2>Pedido</h2>
+        <div id="cart" class="card"></div>
+        <form id="order-form" class="form">
+          <label>Nome completo</label>
+          <input name="client_name" required />
+
+          <label>WhatsApp</label>
+          <input name="whatsapp" required />
+
+          <label>Email</label>
+          <input name="email" type="email" />
+
+          <label>Entrega ou retirada</label>
+          <select name="delivery_type">
+            <option value="Entrega">Entrega</option>
+            <option value="Retirada">Retirada</option>
+          </select>
+
+          <label>Data</label>
+          <input name="delivery_date" type="date" />
+
+          <label>Horario</label>
+          <input name="delivery_time" type="time" value="15:00" />
+
+          <label>Endereco de entrega</label>
+          <textarea name="address" rows="3"></textarea>
+
+          <label>Observacoes</label>
+          <textarea name="notes" rows="2"></textarea>
+
+          <button type="submit">Finalizar pedido</button>
+          <div id="order-status"></div>
+        </form>
+      </aside>
+    </main>
+
+    <script>
+      window.PRODUCTS = {{ products_json | safe }};
+    </script>
+    <script src="/static/app.js"></script>
+  </body>
+</html>
