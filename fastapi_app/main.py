@@ -2,10 +2,11 @@
 
 import json
 import datetime as dt
+import os
 from pathlib import Path
 from typing import Any, Dict, List
 
-from fastapi import FastAPI, Request
+from fastapi import FastAPI, Request, Form
 from fastapi.responses import HTMLResponse, JSONResponse
 from fastapi.staticfiles import StaticFiles
 from fastapi.templating import Jinja2Templates
@@ -118,9 +119,41 @@ def load_catalog() -> List[Dict[str, Any]]:
         return DEFAULT_CATALOG
 
 
+def save_catalog(items: List[Dict[str, Any]]) -> None:
+    CATALOG_PATH.write_text(json.dumps(items, ensure_ascii=False, indent=2), encoding="utf-8")
+
+
 @app.get("/", response_class=HTMLResponse)
 def index(request: Request):
     return templates.TemplateResponse("index.html", {"request": request})
+
+
+@app.get("/admin", response_class=HTMLResponse)
+def admin(request: Request, msg: str | None = None):
+    catalog = load_catalog()
+    return templates.TemplateResponse(
+        "admin.html",
+        {
+            "request": request,
+            "catalog_json": json.dumps(catalog, ensure_ascii=False, indent=2),
+            "message": msg or "",
+        },
+    )
+
+
+@app.post("/admin", response_class=HTMLResponse)
+def admin_save(request: Request, password: str = Form(""), catalog_json: str = Form("")):
+    admin_pass = os.getenv("ADMIN_PASS", "admin")
+    if password != admin_pass:
+        return admin(request, msg="Senha incorreta.")
+    try:
+        items = json.loads(catalog_json)
+        if not isinstance(items, list):
+            raise ValueError("JSON invalido")
+        save_catalog(items)
+        return admin(request, msg="Catalogo atualizado.")
+    except Exception as exc:
+        return admin(request, msg=f"Erro ao salvar: {exc}")
 
 
 @app.get("/api/catalog")

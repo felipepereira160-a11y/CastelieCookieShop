@@ -26,19 +26,28 @@ function renderCategories() {
 
 function buildImageTag(productId, name) {
   const exts = ['jpg', 'jpeg', 'png', 'webp'];
+  const bases = [`/assets/products/${productId}`, `/static/products/${productId}`];
   const img = document.createElement('img');
   img.alt = name;
-  img.dataset.base = `/assets/products/${productId}`;
+  img.dataset.baseIndex = '0';
   img.dataset.extIndex = '0';
-  img.src = `${img.dataset.base}.${exts[0]}`;
+  img.src = `${bases[0]}.${exts[0]}`;
   img.onerror = () => {
-    const next = parseInt(img.dataset.extIndex, 10) + 1;
-    if (next < exts.length) {
-      img.dataset.extIndex = String(next);
-      img.src = `${img.dataset.base}.${exts[next]}`;
-    } else {
-      img.style.display = 'none';
+    let baseIndex = parseInt(img.dataset.baseIndex, 10);
+    let extIndex = parseInt(img.dataset.extIndex, 10) + 1;
+    if (extIndex < exts.length) {
+      img.dataset.extIndex = String(extIndex);
+      img.src = `${bases[baseIndex]}.${exts[extIndex]}`;
+      return;
     }
+    baseIndex += 1;
+    if (baseIndex < bases.length) {
+      img.dataset.baseIndex = String(baseIndex);
+      img.dataset.extIndex = '0';
+      img.src = `${bases[baseIndex]}.${exts[0]}`;
+      return;
+    }
+    img.style.display = 'none';
   };
   return img;
 }
@@ -142,8 +151,8 @@ orderForm.addEventListener('submit', async (event) => {
       return;
     }
 
-    const emailStatus = data.email_ok ? data.email_msg : `Email nao enviado: ${data.email_msg}`;
-    statusEl.textContent = `Pedido ${data.order_id} enviado. Total ${formatBRL(data.total)}. ${emailStatus}`;
+    const emailStatus = data.email_ok ? '' : ` Email nao enviado: ${data.email_msg}`;
+    statusEl.textContent = `Pedido ${data.order_id} enviado. Total ${formatBRL(data.total)}.${emailStatus}`;
     statusEl.className = data.email_ok ? 'success' : 'error';
     cart.clear();
     renderCart();
