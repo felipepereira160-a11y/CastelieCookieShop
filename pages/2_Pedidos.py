@@ -3,6 +3,7 @@
 import streamlit as st
 
 from data.orders_store import append_order
+from email_utils import send_order_email
 from git_utils import commit_and_push
 from state import cart_items, cart_total, init_state, remove_from_cart
 from ui import inject_base_css, format_brl, render_top_nav, section_header
@@ -112,7 +113,8 @@ if st.button("Finalizar pedido"):
         }
 
         append_order(order)
-        ok, msg = commit_and_push(
+        email_ok, email_msg = send_order_email(order)
+        git_ok, git_msg = commit_and_push(
             [
                 "data/orders.csv",
                 "data/orders.xlsx",
@@ -120,10 +122,15 @@ if st.button("Finalizar pedido"):
             f"Novo pedido {order['order_id']}",
         )
 
-        if ok:
+        if email_ok:
+            st.success("Email enviado com sucesso.")
+        else:
+            st.warning(email_msg)
+
+        if git_ok:
             st.success("Pedido registrado e enviado para o GitHub.")
-            st.caption(msg)
+            st.caption(git_msg)
             st.balloons()
         else:
             st.warning("Pedido registrado localmente, mas nao foi possivel enviar ao GitHub.")
-            st.caption(msg)
+            st.caption(git_msg)

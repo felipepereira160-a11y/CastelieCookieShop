@@ -26,6 +26,18 @@ Defina a senha admin com a variavel de ambiente:
 $env:ADMIN_PASS="sua_senha"
 ```
 
+## Email automatico (Gmail)
+
+Crie uma senha de app no Gmail e configure as variaveis:
+
+```powershell
+$env:SMTP_HOST="smtp.gmail.com"
+$env:SMTP_PORT="587"
+$env:SMTP_USER="seu_email@gmail.com"
+$env:SMTP_PASS="sua_senha_de_app"
+$env:SMTP_TO="destino@gmail.com"
+```
+
 ## GitHub push automatico
 
 O app faz `git add/commit/push` quando o pedido e finalizado.

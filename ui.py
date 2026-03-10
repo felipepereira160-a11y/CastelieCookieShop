@@ -142,16 +142,16 @@ def render_top_nav():
     with nav[0]:
         st.markdown("<div class='brand'>Castelie Cookie Shop</div>", unsafe_allow_html=True)
     with nav[1]:
-        if st.button("Inicio", key="nav_home"):
+        if st.button("🏠 Inicio", key="nav_home"):
             st.switch_page("app.py")
     with nav[2]:
-        if st.button("Produtos", key="nav_produtos"):
+        if st.button("🧁 Produtos", key="nav_produtos"):
             st.switch_page("pages/1_Produtos.py")
     with nav[3]:
-        if st.button("Pedidos", key="nav_pedidos"):
+        if st.button("🧾 Pedidos", key="nav_pedidos"):
             st.switch_page("pages/2_Pedidos.py")
     with nav[4]:
-        if st.button("Admin", key="nav_admin"):
+        if st.button("⚙ Admin", key="nav_admin"):
             st.switch_page("pages/3_Admin.py")
 
 
