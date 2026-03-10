@@ -45,7 +45,7 @@ for idx, item in enumerate(filtered):
     with cols[idx % 3]:
         image_path = find_product_image(item["id"])
         if image_path:
-            st.image(image_path, use_container_width=True)
+            st.image(image_path, width="stretch")
         st.markdown(
             f"""
             <div class="card product-card">
@@ -90,6 +90,6 @@ else:
     )
     st.dataframe(
         [{"Produto": i["name"], "Qtde": i["qty"], "Preco": format_brl(i["price"])} for i in items],
-        use_container_width=True,
+        width="stretch",
         hide_index=True,
     )
