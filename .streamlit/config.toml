@@ -1,8 +1,8 @@
 ﻿[theme]
 base = "light"
-primaryColor = "#B86B3A"
-backgroundColor = "#F9F1E7"
-secondaryBackgroundColor = "#EAD7C2"
+primaryColor = "#A55A2A"
+backgroundColor = "#F2E3D2"
+secondaryBackgroundColor = "#E2C7A9"
 textColor = "#3B2317"
 
 [server]

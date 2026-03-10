@@ -11,11 +11,11 @@ def inject_base_css():
 
             :root {
                 --cocoa: #3B2317;
-                --choco: #5A3726;
-                --caramel: #B86B3A;
-                --latte: #EAD7C2;
-                --cream: #F9F1E7;
-                --strawberry: #C96B6B;
+                --choco: #4B2E1E;
+                --caramel: #A55A2A;
+                --latte: #E2C7A9;
+                --cream: #F2E3D2;
+                --strawberry: #B65C5C;
             }
 
             html, body, [class*="css"]  {
@@ -24,8 +24,8 @@ def inject_base_css():
             }
 
             .stApp {
-                background: radial-gradient(1200px 600px at 10% -10%, #FFF5E9 0%, rgba(255,245,233,0.6) 50%, rgba(255,245,233,0) 70%),
-                            radial-gradient(900px 500px at 90% 0%, #F3D8BF 0%, rgba(243,216,191,0.4) 45%, rgba(243,216,191,0) 70%),
+                background: radial-gradient(1200px 600px at 10% -10%, #F7E5D4 0%, rgba(247,229,212,0.6) 50%, rgba(247,229,212,0) 70%),
+                            radial-gradient(900px 500px at 90% 0%, #E9CDB0 0%, rgba(233,205,176,0.4) 45%, rgba(233,205,176,0) 70%),
                             var(--cream);
             }
 
@@ -43,7 +43,7 @@ def inject_base_css():
             .hero {
                 padding: 24px 28px;
                 border-radius: 18px;
-                background: linear-gradient(120deg, #FFF1E1 0%, #F5D2B3 45%, #EBC3A0 100%);
+                background: linear-gradient(120deg, #F7E1CC 0%, #E9C3A3 45%, #DDB18F 100%);
                 border: 1px solid rgba(90,55,38,0.15);
                 box-shadow: 0 16px 40px rgba(59,35,23,0.08);
             }
