@@ -15,6 +15,20 @@ init_state()
 section_header("Produtos", "Escolha seus favoritos")
 
 catalog = load_catalog()
+
+image_items = []
+for item in catalog:
+    image_path = find_product_image(item["id"])
+    if image_path:
+        image_items.append((item["name"], image_path))
+
+if image_items:
+    st.markdown("<div class='card'><strong>Galeria</strong></div>", unsafe_allow_html=True)
+    cols = st.columns(min(4, len(image_items)))
+    for idx, (name, path) in enumerate(image_items):
+        with cols[idx % len(cols)]:
+            st.image(path, caption=name, use_container_width=True)
+
 categories = ["Todos"] + sorted({item["category"] for item in catalog})
 
 col_filter, col_search, col_price = st.columns([1, 1.4, 1])
