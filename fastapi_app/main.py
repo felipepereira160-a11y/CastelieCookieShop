@@ -1,5 +1,6 @@
 ﻿from __future__ import annotations
 
+import csv
 import json
 import datetime as dt
 import os
@@ -18,6 +19,7 @@ from git_utils import commit_and_push
 APP_ROOT = Path(__file__).resolve().parent
 REPO_ROOT = APP_ROOT.parents[1]
 CATALOG_PATH = REPO_ROOT / "data" / "catalog.json"
+PAYMENTS_PATH = REPO_ROOT / "data" / "pagamentos.csv"
 ASSETS_DIR = REPO_ROOT / "assets"
 STATIC_DIR = APP_ROOT / "static"
 STATIC_PRODUCTS_DIR = STATIC_DIR / "products"
@@ -98,6 +100,16 @@ DEFAULT_CATALOG = [
     },
 ]
 
+PAYMENT_FIELDS = [
+    "cliente",
+    "sem_recheio",
+    "com_recheio",
+    "situacao",
+    "valor",
+    "valor_pago",
+    "observacao",
+]
+
 app = FastAPI(title="Castelie Cookie Shop")
 app.mount("/static", StaticFiles(directory=str(STATIC_DIR)), name="static")
 if ASSETS_DIR.exists():
@@ -126,6 +138,31 @@ def save_catalog(items: List[Dict[str, Any]]) -> None:
     CATALOG_PATH.write_text(json.dumps(items, ensure_ascii=False, indent=2), encoding="utf-8")
 
 
+def load_payments() -> List[Dict[str, Any]]:
+    if not PAYMENTS_PATH.exists():
+        return []
+    with PAYMENTS_PATH.open("r", encoding="utf-8") as handle:
+        reader = csv.DictReader(handle)
+        rows = []
+        for row in reader:
+            for field in PAYMENT_FIELDS:
+                row.setdefault(field, "")
+            cliente = (row.get("cliente") or "").strip()
+            if not cliente or cliente.lower() == "cookie":
+                continue
+            rows.append(row)
+        return rows
+
+
+def save_payments(rows: List[Dict[str, Any]]) -> None:
+    PAYMENTS_PATH.parent.mkdir(parents=True, exist_ok=True)
+    with PAYMENTS_PATH.open("w", encoding="utf-8", newline="") as handle:
+        writer = csv.DictWriter(handle, fieldnames=PAYMENT_FIELDS)
+        writer.writeheader()
+        for row in rows:
+            writer.writerow({field: row.get(field, "") for field in PAYMENT_FIELDS})
+
+
 def _is_admin(password: str) -> bool:
     admin_pass = os.getenv("ADMIN_PASS", "admin")
     return password == admin_pass
@@ -149,6 +186,19 @@ def admin(request: Request, msg: str | None = None):
     )
 
 
+@app.get("/admin/pagamentos", response_class=HTMLResponse)
+def admin_payments(request: Request, msg: str | None = None):
+    rows = load_payments()
+    return templates.TemplateResponse(
+        "payments.html",
+        {
+            "request": request,
+            "payments_json": json.dumps(rows, ensure_ascii=False, indent=2),
+            "message": msg or "",
+        },
+    )
+
+
 @app.post("/admin", response_class=HTMLResponse)
 def admin_save(request: Request, password: str = Form(""), catalog_json: str = Form("")):
     if not _is_admin(password):
@@ -163,6 +213,22 @@ def admin_save(request: Request, password: str = Form(""), catalog_json: str = F
         return admin(request, msg=msg)
     except Exception as exc:
         return admin(request, msg=f"Erro ao salvar: {exc}")
+
+
+@app.post("/admin/pagamentos", response_class=HTMLResponse)
+def admin_payments_save(request: Request, password: str = Form(""), payments_json: str = Form("")):
+    if not _is_admin(password):
+        return admin_payments(request, msg="Senha incorreta.")
+    try:
+        rows = json.loads(payments_json)
+        if not isinstance(rows, list):
+            raise ValueError("JSON invalido")
+        save_payments(rows)
+        git_ok, git_msg = commit_and_push(["data/pagamentos.csv"], "Atualizar pagamentos")
+        msg = "Pagamentos atualizados." if git_ok else f"Pagamentos atualizados, mas git falhou: {git_msg}"
+        return admin_payments(request, msg=msg)
+    except Exception as exc:
+        return admin_payments(request, msg=f"Erro ao salvar: {exc}")
 
 
 @app.post("/admin/upload")

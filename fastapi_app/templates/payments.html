@@ -1,0 +1,109 @@
+﻿<!doctype html>
+<html lang="pt-br">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <title>Pagamentos - Castelie</title>
+    <link rel="stylesheet" href="/static/styles.css" />
+  </head>
+  <body>
+    <header class="top-nav">
+      <div class="brand">Castelie Cookie Shop</div>
+      <nav>
+        <a href="/">Produtos</a>
+        <a href="/admin">Admin</a>
+      </nav>
+    </header>
+
+    <main class="layout" style="grid-template-columns: 1fr;">
+      <section class="products">
+        <h2>Pagamentos</h2>
+        <p>Marque pago, nao pago ou parcial. Tudo salva no GitHub.</p>
+
+        <form method="post" class="form" id="payments-form">
+          <label>Senha admin</label>
+          <input type="password" name="password" id="payments-password" required />
+
+          <div class="payments-toolbar">
+            <button type="button" id="add-row">Adicionar linha</button>
+          </div>
+
+          <div class="payments-table" id="payments-table"></div>
+
+          <textarea name="payments_json" id="payments-json" rows="6" style="display:none;"></textarea>
+
+          <button type="submit">Salvar pagamentos</button>
+          {% if message %}
+          <div id="order-status" class="success">{{ message }}</div>
+          {% endif %}
+        </form>
+      </section>
+    </main>
+
+    <script>
+      const payments = {{ payments_json | safe }};
+      const table = document.getElementById('payments-table');
+      const form = document.getElementById('payments-form');
+      const jsonInput = document.getElementById('payments-json');
+      const addRowBtn = document.getElementById('add-row');
+
+      const statusOptions = ['Pago', 'Pendente', 'Parcial', 'Nao pago'];
+
+      function buildRow(row) {
+        const wrapper = document.createElement('div');
+        wrapper.className = 'payments-row';
+        wrapper.innerHTML = `
+          <input placeholder="Cliente" value="${row.cliente || ''}" data-field="cliente" />
+          <input type="number" step="0.1" placeholder="Sem recheio" value="${row.sem_recheio || ''}" data-field="sem_recheio" />
+          <input type="number" step="0.1" placeholder="Com recheio" value="${row.com_recheio || ''}" data-field="com_recheio" />
+          <input type="number" step="0.1" placeholder="Valor" value="${row.valor || ''}" data-field="valor" />
+          <select data-field="situacao"></select>
+          <input type="number" step="0.1" placeholder="Valor pago" value="${row.valor_pago || ''}" data-field="valor_pago" />
+          <input placeholder="Observacao" value="${row.observacao || ''}" data-field="observacao" />
+          <button type="button" class="remove-row">Remover</button>
+        `;
+        const select = wrapper.querySelector('select');
+        statusOptions.forEach((opt) => {
+          const option = document.createElement('option');
+          option.value = opt;
+          option.textContent = opt;
+          if ((row.situacao || '').toLowerCase() === opt.toLowerCase()) {
+            option.selected = true;
+          }
+          select.appendChild(option);
+        });
+        wrapper.querySelector('.remove-row').addEventListener('click', () => {
+          wrapper.remove();
+        });
+        return wrapper;
+      }
+
+      function renderRows() {
+        table.innerHTML = '';
+        payments.forEach((row) => table.appendChild(buildRow(row)));
+      }
+
+      addRowBtn.addEventListener('click', () => {
+        table.appendChild(buildRow({}));
+      });
+
+      form.addEventListener('submit', () => {
+        const rows = Array.from(document.querySelectorAll('.payments-row')).map((row) => {
+          const getVal = (field) => row.querySelector(`[data-field="${field}"]`).value;
+          return {
+            cliente: getVal('cliente'),
+            sem_recheio: getVal('sem_recheio'),
+            com_recheio: getVal('com_recheio'),
+            situacao: getVal('situacao'),
+            valor: getVal('valor'),
+            valor_pago: getVal('valor_pago'),
+            observacao: getVal('observacao'),
+          };
+        });
+        jsonInput.value = JSON.stringify(rows, null, 2);
+      });
+
+      renderRows();
+    </script>
+  </body>
+</html>
