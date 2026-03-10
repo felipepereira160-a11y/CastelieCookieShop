@@ -2,6 +2,7 @@
 uvicorn
 jinja2
 requests
+python-multipart
 streamlit
 pandas
 openpyxl
