@@ -40,11 +40,28 @@ def _ensure_origin_with_token() -> Tuple[bool, str]:
     return True, ""
 
 
+def _ensure_git_identity() -> Tuple[bool, str]:
+    name = os.getenv("GIT_COMMIT_NAME", "Castelie Bot")
+    email = os.getenv("GIT_COMMIT_EMAIL", "castelie@users.noreply.github.com")
+
+    ok, out = _run(["git", "config", "user.name", name])
+    if not ok:
+        return False, f"Falha ao configurar user.name: {out}"
+    ok, out = _run(["git", "config", "user.email", email])
+    if not ok:
+        return False, f"Falha ao configurar user.email: {out}"
+    return True, ""
+
+
 def commit_and_push(paths: Iterable[str], message: str) -> Tuple[bool, str]:
     paths = list(paths)
     branch = os.getenv("GIT_BRANCH", "main")
 
     ok, out = _ensure_origin_with_token()
+    if not ok:
+        return False, out
+
+    ok, out = _ensure_git_identity()
     if not ok:
         return False, out
 
