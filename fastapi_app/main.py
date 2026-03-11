@@ -18,13 +18,35 @@ from email_utils import send_order_email
 from git_utils import commit_and_push
 
 APP_ROOT = Path(__file__).resolve().parent
-# /opt/render/project/src/fastapi_app -> repo root is /opt/render/project/src
-REPO_ROOT = APP_ROOT.parents[1]
-if REPO_ROOT.name != "src" and len(APP_ROOT.parents) > 1:
-    REPO_ROOT = APP_ROOT.parents[2]
-CATALOG_PATH = REPO_ROOT / "data" / "catalog.json"
-PAYMENTS_PATH = REPO_ROOT / "data" / "pagamentos.csv"
-ASSETS_DIR = REPO_ROOT / "assets"
+
+def _resolve_data_dir() -> Path:
+    candidates = [
+        APP_ROOT.parents[1] / "data",
+        APP_ROOT.parents[2] / "data",
+        APP_ROOT.parents[1] / "src" / "data",
+        APP_ROOT.parents[2] / "src" / "data",
+    ]
+    for candidate in candidates:
+        if candidate.exists():
+            return candidate
+    return APP_ROOT.parents[1] / "data"
+
+def _resolve_assets_dir() -> Path | None:
+    candidates = [
+        APP_ROOT.parents[1] / "assets",
+        APP_ROOT.parents[2] / "assets",
+        APP_ROOT.parents[1] / "src" / "assets",
+        APP_ROOT.parents[2] / "src" / "assets",
+    ]
+    for candidate in candidates:
+        if candidate.exists():
+            return candidate
+    return None
+
+DATA_DIR = _resolve_data_dir()
+CATALOG_PATH = DATA_DIR / "catalog.json"
+PAYMENTS_PATH = DATA_DIR / "pagamentos.csv"
+ASSETS_DIR = _resolve_assets_dir()
 STATIC_DIR = APP_ROOT / "static"
 STATIC_PRODUCTS_DIR = STATIC_DIR / "products"
 STATIC_PRODUCTS_DIR.mkdir(parents=True, exist_ok=True)
@@ -202,7 +224,8 @@ def _admin_creds() -> tuple[str, str]:
 
 
 def _is_admin_session(request: Request) -> bool:
-    return bool(request.session.get("admin"))
+    admin_user, _ = _admin_creds()
+    return request.session.get("admin_user") == admin_user
 
 
 @app.get("/", response_class=HTMLResponse)
@@ -233,7 +256,13 @@ def admin_login(request: Request, username: str = Form(""), password: str = Form
             "admin_login.html",
             {"request": request, "message": "Usuario ou senha incorretos."},
         )
-    request.session["admin"] = True
+    request.session["admin_user"] = username
+    return RedirectResponse("/admin", status_code=303)
+
+
+@app.get("/admin/logout")
+def admin_logout(request: Request):
+    request.session.clear()
     return RedirectResponse("/admin", status_code=303)
 
 
@@ -306,7 +335,7 @@ async def admin_upload(request: Request, product_id: str = Form(""), image: Uplo
     content = await image.read()
     target.write_bytes(content)
 
-    git_ok, git_msg = commit_and_push([str(target.relative_to(REPO_ROOT))], f"Atualizar imagem {product_id}")
+    git_ok, git_msg = commit_and_push([str(target.relative_to(APP_ROOT.parents[1]))], f"Atualizar imagem {product_id}")
     if not git_ok:
         return {"ok": True, "message": f"Imagem salva. Git falhou: {git_msg}"}
 
