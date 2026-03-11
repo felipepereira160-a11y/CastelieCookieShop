@@ -21,10 +21,13 @@
         <h2>Pagamentos</h2>
         <p>Marque pago, nao pago ou parcial. Tudo salva no GitHub.</p>
 
-        <form method="post" class="form" id="payments-form">
-          <label>Senha admin</label>
-          <input type="password" name="password" id="payments-password" required />
+        {% if git_message %}
+        <div class="card" style="margin-bottom: 12px;">
+          <strong>Git:</strong> {{ git_message }}
+        </div>
+        {% endif %}
 
+        <form method="post" class="form" id="payments-form">
           <div class="payments-toolbar">
             <button type="button" id="add-row">Adicionar linha</button>
           </div>

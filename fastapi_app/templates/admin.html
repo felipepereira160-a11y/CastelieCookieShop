@@ -21,6 +21,12 @@
         <h2>Admin</h2>
         <p>Edite produtos e envie fotos. Tudo fica com tamanho padrao.</p>
 
+        {% if git_message %}
+        <div class="card" style="margin-bottom: 12px;">
+          <strong>Git:</strong> {{ git_message }}
+        </div>
+        {% endif %}
+
         {% if payments_preview %}
         <div class="card" style="margin-bottom: 16px;">
           <strong>Resumo rapido de pagamentos</strong>

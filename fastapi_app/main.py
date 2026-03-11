@@ -232,13 +232,18 @@ def _is_admin_session(request: Request) -> bool:
     return request.session.get("admin_user") == admin_user
 
 
+def _commit_with_notice(paths: List[str], message: str) -> Dict[str, Any]:
+    ok, msg = commit_and_push(paths, message)
+    return {"ok": ok, "message": msg}
+
+
 @app.get("/", response_class=HTMLResponse)
 def index(request: Request):
     return templates.TemplateResponse("index.html", {"request": request})
 
 
 @app.get("/admin", response_class=HTMLResponse)
-def admin(request: Request, msg: str | None = None):
+def admin(request: Request, msg: str | None = None, git: str | None = None):
     if not _is_admin_session(request):
         return templates.TemplateResponse("admin_login.html", {"request": request, "message": msg or ""})
     catalog = load_catalog()
@@ -250,8 +255,18 @@ def admin(request: Request, msg: str | None = None):
             "catalog_json": json.dumps(catalog, ensure_ascii=False, indent=2),
             "payments_preview": payments[:8],
             "message": msg or "",
+            "git_message": git or "",
         },
     )
+
+
+@app.get("/admin/git-status")
+def admin_git_status():
+    required = ["GIT_USERNAME", "GIT_REPO", "GIT_TOKEN", "GIT_BRANCH"]
+    missing = [key for key in required if not os.getenv(key)]
+    if missing:
+        return {"ok": False, "message": f"Faltam variaveis: {', '.join(missing)}"}
+    return {"ok": True, "message": "Git configurado."}
 
 
 @app.post("/admin/login")
@@ -273,7 +288,7 @@ def admin_logout(request: Request):
 
 
 @app.get("/admin/pagamentos", response_class=HTMLResponse)
-def admin_payments(request: Request, msg: str | None = None):
+def admin_payments(request: Request, msg: str | None = None, git: str | None = None):
     if not _is_admin_session(request):
         return templates.TemplateResponse("admin_login.html", {"request": request, "message": msg or ""})
     rows = load_payments()
@@ -283,6 +298,7 @@ def admin_payments(request: Request, msg: str | None = None):
             "request": request,
             "payments_json": json.dumps(rows, ensure_ascii=False, indent=2),
             "message": msg or "",
+            "git_message": git or "",
         },
     )
 
@@ -296,9 +312,9 @@ def admin_save(request: Request, catalog_json: str = Form("")):
         if not isinstance(items, list):
             raise ValueError("JSON invalido")
         save_catalog(items)
-        git_ok, git_msg = commit_and_push(["data/catalog.json"], "Atualizar catalogo")
-        msg = "Catalogo atualizado." if git_ok else f"Catalogo atualizado, mas git falhou: {git_msg}"
-        return admin(request, msg=msg)
+        git = _commit_with_notice(["data/catalog.json"], "Atualizar catalogo")
+        msg = "Catalogo atualizado."
+        return admin(request, msg=msg, git=git["message"])
     except Exception as exc:
         return admin(request, msg=f"Erro ao salvar: {exc}")
 
@@ -312,9 +328,9 @@ def admin_payments_save(request: Request, payments_json: str = Form("")):
         if not isinstance(rows, list):
             raise ValueError("JSON invalido")
         save_payments(rows)
-        git_ok, git_msg = commit_and_push(["data/pagamentos.csv"], "Atualizar pagamentos")
-        msg = "Pagamentos atualizados." if git_ok else f"Pagamentos atualizados, mas git falhou: {git_msg}"
-        return admin_payments(request, msg=msg)
+        git = _commit_with_notice(["data/pagamentos.csv"], "Atualizar pagamentos")
+        msg = "Pagamentos atualizados."
+        return admin_payments(request, msg=msg, git=git["message"])
     except Exception as exc:
         return admin_payments(request, msg=f"Erro ao salvar: {exc}")
 
@@ -341,11 +357,8 @@ async def admin_upload(request: Request, product_id: str = Form(""), image: Uplo
     content = await image.read()
     target.write_bytes(content)
 
-    git_ok, git_msg = commit_and_push([str(target.relative_to(APP_ROOT.parents[1]))], f"Atualizar imagem {product_id}")
-    if not git_ok:
-        return {"ok": True, "message": f"Imagem salva. Git falhou: {git_msg}"}
-
-    return {"ok": True, "message": "Imagem salva."}
+    git = _commit_with_notice([str(target.relative_to(APP_ROOT.parents[1]))], f"Atualizar imagem {product_id}")
+    return {"ok": True, "message": git["message"] if git["message"] else "Imagem salva."}
 
 
 @app.get("/api/catalog")
@@ -397,7 +410,7 @@ async def create_order(payload: Dict[str, Any]):
         catalog_map[pid]["stock"] = int(catalog_map[pid].get("stock") or 0) - qty
 
     save_catalog(list(catalog_map.values()))
-    commit_and_push(["data/catalog.json"], "Atualizar estoque")
+    _commit_with_notice(["data/catalog.json"], "Atualizar estoque")
 
     subtotal = float(payload.get("subtotal") or 0)
     delivery_fee = 8.0 if delivery_type == "Entrega" else 0.0
@@ -423,7 +436,7 @@ async def create_order(payload: Dict[str, Any]):
 
     append_order(order)
     email_ok, email_msg = send_order_email(order)
-    git_ok, git_msg = commit_and_push(["data/orders.csv", "data/orders.xlsx"], f"Novo pedido {order['order_id']}")
+    git_ok, git_msg = _commit_with_notice(["data/orders.csv", "data/orders.xlsx"], f"Novo pedido {order['order_id']}").values()
 
     return {
         "ok": True,
