@@ -18,7 +18,7 @@ def _run(cmd: list[str]) -> Tuple[bool, str]:
         return False, str(exc)
 
 
-def _set_remote_with_token() -> Tuple[bool, str]:
+def _ensure_origin_with_token() -> Tuple[bool, str]:
     token = os.getenv("GIT_TOKEN", "")
     user = os.getenv("GIT_USERNAME", "")
     repo = os.getenv("GIT_REPO", "")
@@ -27,9 +27,16 @@ def _set_remote_with_token() -> Tuple[bool, str]:
         return True, ""
 
     url = f"https://{user}:{token}@github.com/{user}/{repo}.git"
-    ok, out = _run(["git", "remote", "set-url", "origin", url])
+    ok, out = _run(["git", "remote", "get-url", "origin"])
     if not ok:
-        return False, f"Falha ao configurar remote com token: {out}"
+        ok_add, out_add = _run(["git", "remote", "add", "origin", url])
+        if not ok_add:
+            return False, f"Falha ao adicionar remote: {out_add}"
+        return True, ""
+
+    ok_set, out_set = _run(["git", "remote", "set-url", "origin", url])
+    if not ok_set:
+        return False, f"Falha ao configurar remote com token: {out_set}"
     return True, ""
 
 
@@ -37,7 +44,7 @@ def commit_and_push(paths: Iterable[str], message: str) -> Tuple[bool, str]:
     paths = list(paths)
     branch = os.getenv("GIT_BRANCH", "main")
 
-    ok, out = _set_remote_with_token()
+    ok, out = _ensure_origin_with_token()
     if not ok:
         return False, out
 
