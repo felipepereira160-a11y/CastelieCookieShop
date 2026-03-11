@@ -19,6 +19,7 @@ from git_utils import commit_and_push
 
 APP_ROOT = Path(__file__).resolve().parent
 
+
 def _resolve_data_dir() -> Path:
     candidates = [
         APP_ROOT.parents[1] / "data",
@@ -31,6 +32,7 @@ def _resolve_data_dir() -> Path:
             return candidate
     return APP_ROOT.parents[1] / "data"
 
+
 def _resolve_assets_dir() -> Path | None:
     candidates = [
         APP_ROOT.parents[1] / "assets",
@@ -42,6 +44,7 @@ def _resolve_assets_dir() -> Path | None:
         if candidate.exists():
             return candidate
     return None
+
 
 DATA_DIR = _resolve_data_dir()
 CATALOG_PATH = DATA_DIR / "catalog.json"
@@ -166,7 +169,7 @@ PAYMENT_FIELDS = [
 app = FastAPI(title="Castelie Cookie Shop")
 app.add_middleware(SessionMiddleware, secret_key=os.getenv("ADMIN_SESSION_SECRET", "castelie-secret"))
 app.mount("/static", StaticFiles(directory=str(STATIC_DIR)), name="static")
-if ASSETS_DIR.exists():
+if ASSETS_DIR is not None:
     app.mount("/assets", StaticFiles(directory=str(ASSETS_DIR)), name="assets")
 
 templates = Jinja2Templates(directory=str(APP_ROOT / "templates"))
@@ -189,6 +192,7 @@ def load_catalog() -> List[Dict[str, Any]]:
 
 
 def save_catalog(items: List[Dict[str, Any]]) -> None:
+    CATALOG_PATH.parent.mkdir(parents=True, exist_ok=True)
     CATALOG_PATH.write_text(json.dumps(items, ensure_ascii=False, indent=2), encoding="utf-8")
 
 
@@ -238,11 +242,13 @@ def admin(request: Request, msg: str | None = None):
     if not _is_admin_session(request):
         return templates.TemplateResponse("admin_login.html", {"request": request, "message": msg or ""})
     catalog = load_catalog()
+    payments = load_payments()
     return templates.TemplateResponse(
         "admin.html",
         {
             "request": request,
             "catalog_json": json.dumps(catalog, ensure_ascii=False, indent=2),
+            "payments_preview": payments[:8],
             "message": msg or "",
         },
     )

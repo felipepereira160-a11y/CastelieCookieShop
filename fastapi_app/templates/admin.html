@@ -21,10 +21,22 @@
         <h2>Admin</h2>
         <p>Edite produtos e envie fotos. Tudo fica com tamanho padrao.</p>
 
-        <form method="post" class="form" id="admin-form">
-          <label>Senha admin</label>
-          <input type="password" name="password" id="admin-password" required />
+        {% if payments_preview %}
+        <div class="card" style="margin-bottom: 16px;">
+          <strong>Resumo rapido de pagamentos</strong>
+          <div class="payments-mini">
+            {% for row in payments_preview %}
+              <div class="payments-mini-row">
+                <span>{{ row.cliente }}</span>
+                <span>{{ row.situacao }}</span>
+                <span>{{ row.valor }}</span>
+              </div>
+            {% endfor %}
+          </div>
+        </div>
+        {% endif %}
 
+        <form method="post" class="form" id="admin-form">
           <label>Produtos</label>
           <div id="admin-grid" class="grid admin-grid"></div>
 
@@ -75,18 +87,12 @@
 
         const uploadBtn = card.querySelector('.upload-btn');
         uploadBtn.addEventListener('click', async () => {
-          const password = document.getElementById('admin-password').value;
           const fileInput = card.querySelector('input[data-field="image"]');
-          if (!password) {
-            alert('Digite a senha admin.');
-            return;
-          }
           if (!fileInput.files.length) {
             alert('Escolha uma imagem.');
             return;
           }
           const formData = new FormData();
-          formData.append('password', password);
           formData.append('product_id', item.id);
           formData.append('image', fileInput.files[0]);
 
