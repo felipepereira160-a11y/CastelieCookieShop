@@ -18,7 +18,10 @@ from email_utils import send_order_email
 from git_utils import commit_and_push
 
 APP_ROOT = Path(__file__).resolve().parent
+# /opt/render/project/src/fastapi_app -> repo root is /opt/render/project/src
 REPO_ROOT = APP_ROOT.parents[1]
+if REPO_ROOT.name != "src" and len(APP_ROOT.parents) > 1:
+    REPO_ROOT = APP_ROOT.parents[2]
 CATALOG_PATH = REPO_ROOT / "data" / "catalog.json"
 PAYMENTS_PATH = REPO_ROOT / "data" / "pagamentos.csv"
 ASSETS_DIR = REPO_ROOT / "assets"
