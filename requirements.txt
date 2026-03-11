@@ -3,6 +3,7 @@ uvicorn
 jinja2
 requests
 python-multipart
+itsdangerous
 streamlit
 pandas
 openpyxl
