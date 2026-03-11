@@ -35,6 +35,13 @@ h1, h2, h3 {
   border-bottom: 1px solid rgba(54, 33, 22, 0.12);
 }
 
+.brand {
+  font-family: 'Playfair Display', serif;
+  font-size: 18px;
+  font-weight: 600;
+  letter-spacing: 0.3px;
+}
+
 .top-nav nav a {
   margin-left: 16px;
   color: #6f3a1d;
