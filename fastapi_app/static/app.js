@@ -67,6 +67,9 @@ function renderProducts() {
       const img = buildImageTag(p.id, p.name);
       card.appendChild(img);
 
+      const stockInfo = p.available ? `Estoque: ${p.stock ?? 0}` : 'Indisponivel';
+      const disabled = !p.available || (p.stock ?? 0) <= 0;
+
       card.insertAdjacentHTML(
         'beforeend',
         `
@@ -74,9 +77,10 @@ function renderProducts() {
         <div class="meta">${p.category} • ${p.size}</div>
         <p>${p.description}</p>
         <div class="price">${formatBRL(p.price)} <span class="badge">${p.highlight}</span></div>
+        <div class="meta">${stockInfo}</div>
         <div class="actions">
-          <input type="number" min="1" value="1" />
-          <button>Adicionar</button>
+          <input type="number" min="1" value="1" ${disabled ? 'disabled' : ''} />
+          <button ${disabled ? 'disabled' : ''}>${disabled ? 'Indisponivel' : 'Adicionar'}</button>
         </div>
       `
       );
@@ -85,6 +89,7 @@ function renderProducts() {
       const addBtn = card.querySelector('button');
       addBtn.addEventListener('click', () => {
         const qty = parseInt(qtyInput.value, 10) || 1;
+        if (disabled) return;
         const existing = cart.get(p.id) || { ...p, qty: 0 };
         existing.qty += qty;
         cart.set(p.id, existing);
@@ -156,6 +161,7 @@ orderForm.addEventListener('submit', async (event) => {
     statusEl.className = data.email_ok ? 'success' : 'error';
     cart.clear();
     renderCart();
+    await init();
   } catch (err) {
     statusEl.textContent = 'Falha ao enviar pedido.';
     statusEl.className = 'error';

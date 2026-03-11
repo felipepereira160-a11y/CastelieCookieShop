@@ -11,6 +11,7 @@
       <div class="brand">Castelie Cookie Shop</div>
       <nav>
         <a href="/">Produtos</a>
+        <a href="/admin/pagamentos">Pagamentos</a>
       </nav>
     </header>
 
@@ -59,6 +60,13 @@
           <textarea rows="2" data-field="description">${item.description}</textarea>
           <label>Destaque</label>
           <input value="${item.highlight}" data-field="highlight" />
+          <label>Disponivel</label>
+          <select data-field="available">
+            <option value="true" ${item.available ? 'selected' : ''}>Sim</option>
+            <option value="false" ${item.available ? '' : 'selected'}>Nao</option>
+          </select>
+          <label>Estoque</label>
+          <input type="number" step="1" value="${item.stock ?? 0}" data-field="stock" />
           <label>Foto</label>
           <input type="file" data-field="image" accept=".jpg,.jpeg,.png,.webp" />
           <button type="button" class="upload-btn">Enviar foto</button>
@@ -107,6 +115,8 @@
             size: getVal('size'),
             description: getVal('description'),
             highlight: getVal('highlight'),
+            available: getVal('available') === 'true',
+            stock: parseInt(getVal('stock') || 0, 10),
           };
         });
         jsonInput.value = JSON.stringify(updated, null, 2);

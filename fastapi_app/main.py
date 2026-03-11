@@ -34,6 +34,8 @@ DEFAULT_CATALOG = [
         "size": "120g",
         "description": "Massa amanteigada com gotas de chocolate ao leite e toque de baunilha.",
         "highlight": "Mais vendido",
+        "available": False,
+        "stock": 0,
     },
     {
         "id": "ck_double",
@@ -43,6 +45,8 @@ DEFAULT_CATALOG = [
         "size": "130g",
         "description": "Chocolate intenso com pedacos de chocolate meio amargo.",
         "highlight": "Intenso",
+        "available": False,
+        "stock": 0,
     },
     {
         "id": "ck_nut",
@@ -52,6 +56,19 @@ DEFAULT_CATALOG = [
         "size": "125g",
         "description": "Mix de castanhas, caramelo salgado e base de chocolate.",
         "highlight": "Crocante",
+        "available": False,
+        "stock": 0,
+    },
+    {
+        "id": "ck_recheado_tradicional",
+        "name": "Cookie recheado tradicional com gotas de chocolate",
+        "category": "Cookies",
+        "price": 8.5,
+        "size": "130g",
+        "description": "Cookie recheado tradicional com gotas de chocolate.",
+        "highlight": "Disponivel",
+        "available": True,
+        "stock": 5,
     },
     {
         "id": "bp_brigadeiro",
@@ -61,6 +78,8 @@ DEFAULT_CATALOG = [
         "size": "240ml",
         "description": "Camadas de bolo de chocolate com brigadeiro cremoso.",
         "highlight": "Classico",
+        "available": True,
+        "stock": 999,
     },
     {
         "id": "bp_ninho",
@@ -70,6 +89,8 @@ DEFAULT_CATALOG = [
         "size": "240ml",
         "description": "Bolo branco, creme de leite em po e toque de morango.",
         "highlight": "Suave",
+        "available": True,
+        "stock": 999,
     },
     {
         "id": "bp_red",
@@ -79,6 +100,8 @@ DEFAULT_CATALOG = [
         "size": "240ml",
         "description": "Red velvet com creme de cream cheese e ganache.",
         "highlight": "Premium",
+        "available": True,
+        "stock": 999,
     },
     {
         "id": "kit_party",
@@ -88,6 +111,8 @@ DEFAULT_CATALOG = [
         "size": "6 unidades",
         "description": "3 cookies + 3 bolos de pote. Ideal para compartilhar.",
         "highlight": "Combo",
+        "available": True,
+        "stock": 999,
     },
     {
         "id": "kit_family",
@@ -97,6 +122,8 @@ DEFAULT_CATALOG = [
         "size": "12 unidades",
         "description": "6 cookies + 6 bolos de pote com sabores variados.",
         "highlight": "Melhor custo",
+        "available": True,
+        "stock": 999,
     },
 ]
 
@@ -286,6 +313,30 @@ async def create_order(payload: Dict[str, Any]):
     address = (payload.get("address") or "").strip()
     if delivery_type == "Entrega" and not address:
         return JSONResponse({"ok": False, "message": "Endereco de entrega obrigatorio."}, status_code=400)
+
+    # inventory check
+    catalog = load_catalog()
+    catalog_map = {item.get("id"): item for item in catalog}
+    for item in items:
+        pid = item.get("id")
+        qty = int(item.get("qty") or 0)
+        record = catalog_map.get(pid)
+        if record is None:
+            return JSONResponse({"ok": False, "message": f"Produto {pid} nao encontrado."}, status_code=400)
+        if not record.get("available", True):
+            return JSONResponse({"ok": False, "message": f"{record.get('name', 'Produto')} indisponivel."}, status_code=400)
+        stock = int(record.get("stock") or 0)
+        if stock < qty:
+            return JSONResponse({"ok": False, "message": f"Estoque insuficiente para {record.get('name', 'produto')}"}, status_code=400)
+
+    # decrement stock
+    for item in items:
+        pid = item.get("id")
+        qty = int(item.get("qty") or 0)
+        catalog_map[pid]["stock"] = int(catalog_map[pid].get("stock") or 0) - qty
+
+    save_catalog(list(catalog_map.values()))
+    commit_and_push(["data/catalog.json"], "Atualizar estoque")
 
     subtotal = float(payload.get("subtotal") or 0)
     delivery_fee = 8.0 if delivery_type == "Entrega" else 0.0

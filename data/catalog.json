@@ -6,7 +6,9 @@
     "price": 7.5,
     "size": "120g",
     "description": "Massa amanteigada com gotas de chocolate ao leite e toque de baunilha.",
-    "highlight": "Mais vendido"
+    "highlight": "Mais vendido",
+    "available": false,
+    "stock": 0
   },
   {
     "id": "ck_double",
@@ -15,7 +17,9 @@
     "price": 8.5,
     "size": "130g",
     "description": "Chocolate intenso com pedacos de chocolate meio amargo.",
-    "highlight": "Intenso"
+    "highlight": "Intenso",
+    "available": false,
+    "stock": 0
   },
   {
     "id": "ck_nut",
@@ -24,7 +28,9 @@
     "price": 9.0,
     "size": "125g",
     "description": "Mix de castanhas, caramelo salgado e base de chocolate.",
-    "highlight": "Crocante"
+    "highlight": "Crocante",
+    "available": false,
+    "stock": 0
   },
   {
     "id": "bp_brigadeiro",
@@ -70,5 +76,16 @@
     "size": "12 unidades",
     "description": "6 cookies + 6 bolos de pote com sabores variados.",
     "highlight": "Melhor custo"
+  },
+  {
+    "id": "ck_recheado_tradicional",
+    "name": "Cookie recheado tradicional com gotas de chocolate",
+    "category": "Cookies",
+    "price": 8.5,
+    "size": "130g",
+    "description": "Cookie recheado tradicional com gotas de chocolate.",
+    "highlight": "Disponivel",
+    "available": true,
+    "stock": 5
   }
 ]
