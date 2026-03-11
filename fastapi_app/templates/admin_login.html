@@ -1,0 +1,35 @@
+﻿<!doctype html>
+<html lang="pt-br">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <title>Admin - Login</title>
+    <link rel="stylesheet" href="/static/styles.css" />
+  </head>
+  <body>
+    <header class="top-nav">
+      <div class="brand">Castelie Cookie Shop</div>
+      <nav>
+        <a href="/">Produtos</a>
+      </nav>
+    </header>
+
+    <main class="layout" style="grid-template-columns: 1fr;">
+      <section class="products">
+        <h2>Login Admin</h2>
+        <form method="post" action="/admin/login" class="form" style="max-width: 420px;">
+          <label>Usuario</label>
+          <input name="username" required />
+
+          <label>Senha</label>
+          <input name="password" type="password" required />
+
+          <button type="submit">Entrar</button>
+          {% if message %}
+          <div id="order-status" class="error">{{ message }}</div>
+          {% endif %}
+        </form>
+      </section>
+    </main>
+  </body>
+</html>

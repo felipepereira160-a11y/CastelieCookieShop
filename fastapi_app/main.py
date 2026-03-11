@@ -8,9 +8,10 @@ from pathlib import Path
 from typing import Any, Dict, List
 
 from fastapi import FastAPI, Request, Form, UploadFile, File
-from fastapi.responses import HTMLResponse, JSONResponse
+from fastapi.responses import HTMLResponse, JSONResponse, RedirectResponse
 from fastapi.staticfiles import StaticFiles
 from fastapi.templating import Jinja2Templates
+from starlette.middleware.sessions import SessionMiddleware
 
 from data.orders_store import append_order
 from email_utils import send_order_email
@@ -138,6 +139,7 @@ PAYMENT_FIELDS = [
 ]
 
 app = FastAPI(title="Castelie Cookie Shop")
+app.add_middleware(SessionMiddleware, secret_key=os.getenv("ADMIN_SESSION_SECRET", "castelie-secret"))
 app.mount("/static", StaticFiles(directory=str(STATIC_DIR)), name="static")
 if ASSETS_DIR.exists():
     app.mount("/assets", StaticFiles(directory=str(ASSETS_DIR)), name="assets")
@@ -190,9 +192,14 @@ def save_payments(rows: List[Dict[str, Any]]) -> None:
             writer.writerow({field: row.get(field, "") for field in PAYMENT_FIELDS})
 
 
-def _is_admin(password: str) -> bool:
-    admin_pass = os.getenv("ADMIN_PASS", "admin")
-    return password == admin_pass
+def _admin_creds() -> tuple[str, str]:
+    user = os.getenv("ADMIN_USER", "admin")
+    pw = os.getenv("ADMIN_PASS", "C34bs###2028")
+    return user, pw
+
+
+def _is_admin_session(request: Request) -> bool:
+    return bool(request.session.get("admin"))
 
 
 @app.get("/", response_class=HTMLResponse)
@@ -202,6 +209,8 @@ def index(request: Request):
 
 @app.get("/admin", response_class=HTMLResponse)
 def admin(request: Request, msg: str | None = None):
+    if not _is_admin_session(request):
+        return templates.TemplateResponse("admin_login.html", {"request": request, "message": msg or ""})
     catalog = load_catalog()
     return templates.TemplateResponse(
         "admin.html",
@@ -213,8 +222,22 @@ def admin(request: Request, msg: str | None = None):
     )
 
 
+@app.post("/admin/login")
+def admin_login(request: Request, username: str = Form(""), password: str = Form("")):
+    admin_user, admin_pass = _admin_creds()
+    if username != admin_user or password != admin_pass:
+        return templates.TemplateResponse(
+            "admin_login.html",
+            {"request": request, "message": "Usuario ou senha incorretos."},
+        )
+    request.session["admin"] = True
+    return RedirectResponse("/admin", status_code=303)
+
+
 @app.get("/admin/pagamentos", response_class=HTMLResponse)
 def admin_payments(request: Request, msg: str | None = None):
+    if not _is_admin_session(request):
+        return templates.TemplateResponse("admin_login.html", {"request": request, "message": msg or ""})
     rows = load_payments()
     return templates.TemplateResponse(
         "payments.html",
@@ -227,9 +250,9 @@ def admin_payments(request: Request, msg: str | None = None):
 
 
 @app.post("/admin", response_class=HTMLResponse)
-def admin_save(request: Request, password: str = Form(""), catalog_json: str = Form("")):
-    if not _is_admin(password):
-        return admin(request, msg="Senha incorreta.")
+def admin_save(request: Request, catalog_json: str = Form("")):
+    if not _is_admin_session(request):
+        return templates.TemplateResponse("admin_login.html", {"request": request, "message": "Login necessario."})
     try:
         items = json.loads(catalog_json)
         if not isinstance(items, list):
@@ -243,9 +266,9 @@ def admin_save(request: Request, password: str = Form(""), catalog_json: str = F
 
 
 @app.post("/admin/pagamentos", response_class=HTMLResponse)
-def admin_payments_save(request: Request, password: str = Form(""), payments_json: str = Form("")):
-    if not _is_admin(password):
-        return admin_payments(request, msg="Senha incorreta.")
+def admin_payments_save(request: Request, payments_json: str = Form("")):
+    if not _is_admin_session(request):
+        return templates.TemplateResponse("admin_login.html", {"request": request, "message": "Login necessario."})
     try:
         rows = json.loads(payments_json)
         if not isinstance(rows, list):
@@ -259,9 +282,9 @@ def admin_payments_save(request: Request, password: str = Form(""), payments_jso
 
 
 @app.post("/admin/upload")
-async def admin_upload(password: str = Form(""), product_id: str = Form(""), image: UploadFile = File(...)):
-    if not _is_admin(password):
-        return JSONResponse({"ok": False, "message": "Senha incorreta."}, status_code=401)
+async def admin_upload(request: Request, product_id: str = Form(""), image: UploadFile = File(...)):
+    if not _is_admin_session(request):
+        return JSONResponse({"ok": False, "message": "Login necessario."}, status_code=401)
 
     if not product_id:
         return JSONResponse({"ok": False, "message": "Produto invalido."}, status_code=400)
