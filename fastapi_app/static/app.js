@@ -62,13 +62,13 @@ function renderProducts() {
     .filter((p) => (p.name + ' ' + p.description).toLowerCase().includes(query))
     .forEach((p) => {
       const card = document.createElement('div');
-      card.className = 'card product-card';
+      const disabled = !p.available || (p.stock ?? 0) <= 0;
+      card.className = `card product-card${disabled ? ' unavailable' : ''}`;
 
       const img = buildImageTag(p.id, p.name);
       card.appendChild(img);
 
       const stockInfo = p.available ? `Estoque: ${p.stock ?? 0}` : 'Indisponivel';
-      const disabled = !p.available || (p.stock ?? 0) <= 0;
 
       card.insertAdjacentHTML(
         'beforeend',

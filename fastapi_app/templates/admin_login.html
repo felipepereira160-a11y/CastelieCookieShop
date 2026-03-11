@@ -17,18 +17,20 @@
     <main class="layout" style="grid-template-columns: 1fr;">
       <section class="products">
         <h2>Login Admin</h2>
-        <form method="post" action="/admin/login" class="form" style="max-width: 420px;">
-          <label>Usuario</label>
-          <input name="username" required />
+        <div class="card" style="max-width: 420px;">
+          <form method="post" action="/admin/login" class="form">
+            <label>Usuario</label>
+            <input name="username" required />
 
-          <label>Senha</label>
-          <input name="password" type="password" required />
+            <label>Senha</label>
+            <input name="password" type="password" required />
 
-          <button type="submit">Entrar</button>
-          {% if message %}
-          <div id="order-status" class="error">{{ message }}</div>
-          {% endif %}
-        </form>
+            <button type="submit">Entrar</button>
+            {% if message %}
+            <div id="order-status" class="error">{{ message }}</div>
+            {% endif %}
+          </form>
+        </div>
       </section>
     </main>
   </body>

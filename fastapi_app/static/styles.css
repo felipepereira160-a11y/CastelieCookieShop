@@ -156,6 +156,21 @@ h1, h2, h3 {
   cursor: pointer;
 }
 
+.product-card.unavailable {
+  filter: grayscale(0.8);
+  opacity: 0.65;
+}
+
+.product-card.unavailable .badge,
+.product-card.unavailable .price {
+  color: #6b5a4f;
+}
+
+.product-card.unavailable button {
+  background: #8c8278;
+  cursor: not-allowed;
+}
+
 .order .form {
   margin-top: 16px;
   display: grid;
@@ -211,7 +226,8 @@ h1, h2, h3 {
 }
 
 .admin-card input,
-.admin-card textarea {
+.admin-card textarea,
+.admin-card select {
   width: 100%;
   margin-bottom: 6px;
 }
