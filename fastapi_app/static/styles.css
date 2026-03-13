@@ -362,6 +362,23 @@ h1, h2, h3 {
   background: #fff;
 }
 
+.title-resize-wrap {
+  display: flex;
+  justify-content: flex-start;
+}
+
+.title-resize-handle {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  background: #efe3d6;
+  border: 1px solid rgba(54, 33, 22, 0.2);
+  border-radius: 999px;
+  padding: 8px 14px;
+  cursor: ew-resize;
+  font-weight: 600;
+}
+
 .payments-toolbar {
   display: flex;
   justify-content: flex-end;

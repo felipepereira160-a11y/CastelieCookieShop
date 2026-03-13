@@ -72,10 +72,10 @@
           <form method="post" action="/admin/theme" class="form theme-form" id="theme-form">
             <div class="theme-grid">
               <label>Tamanho da logo (px)</label>
-              <input type="range" name="logo_size" min="16" max="80" value="{{ theme.logo_size }}" />
+              <input type="range" name="logo_size" min="16" max="200" value="{{ theme.logo_size }}" />
 
               <label>Tamanho do titulo (px)</label>
-              <input type="range" name="brand_font_size" min="12" max="28" value="{{ theme.brand_font_size }}" />
+              <input type="range" name="brand_font_size" min="12" max="200" value="{{ theme.brand_font_size }}" />
 
               <label>Espacamento do titulo</label>
               <input type="range" name="brand_letter_spacing" min="0" max="6" step="0.1" value="{{ theme.brand_letter_spacing }}" />
@@ -125,6 +125,14 @@
             <strong>Pre-visualizacao</strong>
             <div class="theme-hint">Arraste o logo/titulo no preview para reposicionar.</div>
             <iframe id="theme-preview-frame" src="/" title="Preview do site"></iframe>
+          </div>
+        </div>
+
+        <div class="card" style="margin-bottom: 16px;">
+          <strong>Ajuste rapido do titulo</strong>
+          <p style="margin: 6px 0 12px;">Arraste a alca para aumentar ou reduzir o titulo no preview.</p>
+          <div class="title-resize-wrap">
+            <div class="title-resize-handle" id="title-resize-handle">Ajustar titulo</div>
           </div>
         </div>
 
@@ -432,7 +440,7 @@
         doc.addEventListener('mousemove', (event) => {
           if (!resizing) return;
           const dx = event.clientX - startX;
-          const next = Math.min(80, Math.max(16, baseSize + dx));
+          const next = Math.min(200, Math.max(16, baseSize + dx));
           getHidden('logo_size').value = next.toFixed(0);
           updateThemePreview();
         });
@@ -480,6 +488,33 @@
 
         doc.addEventListener('mouseup', () => {
           dragging = false;
+        });
+      }
+
+      const titleResizeHandle = document.getElementById('title-resize-handle');
+      if (titleResizeHandle) {
+        let resizingTitle = false;
+        let startX = 0;
+        let baseSize = 0;
+        const getHidden = (name) => themeForm.querySelector(`[name="${name}"]`);
+
+        titleResizeHandle.addEventListener('mousedown', (event) => {
+          resizingTitle = true;
+          startX = event.clientX;
+          baseSize = parseFloat(getHidden('brand_font_size').value || 24);
+          event.preventDefault();
+        });
+
+        document.addEventListener('mousemove', (event) => {
+          if (!resizingTitle) return;
+          const dx = event.clientX - startX;
+          const next = Math.min(200, Math.max(12, baseSize + dx));
+          getHidden('brand_font_size').value = next.toFixed(0);
+          updateThemePreview();
+        });
+
+        document.addEventListener('mouseup', () => {
+          resizingTitle = false;
         });
       }
     </script>

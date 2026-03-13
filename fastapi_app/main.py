@@ -159,7 +159,7 @@ DEFAULT_CATALOG = [
 
 DEFAULT_THEME = {
     "logo_size": 36,
-    "brand_font_size": 16,
+    "brand_font_size": 24,
     "brand_letter_spacing": 1.2,
     "brand_offset_x": 0,
     "brand_offset_y": 0,
@@ -378,7 +378,7 @@ def admin_save(request: Request, catalog_json: str = Form("")):
 def admin_theme_save(
     request: Request,
     logo_size: int = Form(36),
-    brand_font_size: int = Form(16),
+    brand_font_size: int = Form(24),
     brand_letter_spacing: float = Form(1.2),
     brand_offset_x: float = Form(0),
     brand_offset_y: float = Form(0),
@@ -400,8 +400,8 @@ def admin_theme_save(
     if not _is_admin_session(request):
         return templates.TemplateResponse("admin_login.html", {"request": request, "message": "Login necessario."})
     theme = {
-        "logo_size": max(16, min(80, int(logo_size))),
-        "brand_font_size": max(12, min(28, int(brand_font_size))),
+        "logo_size": max(16, min(200, int(logo_size))),
+        "brand_font_size": max(12, min(200, int(brand_font_size))),
         "brand_letter_spacing": max(0.0, min(6.0, float(brand_letter_spacing))),
         "brand_offset_x": float(brand_offset_x or 0),
         "brand_offset_y": float(brand_offset_y or 0),
