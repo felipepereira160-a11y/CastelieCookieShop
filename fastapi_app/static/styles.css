@@ -30,14 +30,14 @@ h1, h2, h3 {
   display: flex;
   justify-content: space-between;
   align-items: center;
-  padding: 10px 28px;
+  padding: 8px 24px;
   background: var(--sand);
   border-bottom: 1px solid rgba(54, 33, 22, 0.12);
 }
 
 .brand {
   font-family: 'Playfair Display', serif;
-  font-size: 16px;
+  font-size: 15px;
   font-weight: 600;
   letter-spacing: 0.3px;
   display: flex;
@@ -46,8 +46,10 @@ h1, h2, h3 {
 }
 
 .brand-logo {
-  width: 28px;
-  height: 28px;
+  width: 22px;
+  height: 22px;
+  max-width: 22px;
+  max-height: 22px;
   object-fit: cover;
   border-radius: 50%;
   border: 1px solid rgba(54, 33, 22, 0.2);
@@ -67,6 +69,15 @@ h1, h2, h3 {
   background: linear-gradient(120deg, #ead8c7 0%, #d9c2ab 45%, #cbaa8e 100%);
   border: 1px solid rgba(54, 33, 22, 0.14);
   box-shadow: 0 16px 40px rgba(54, 33, 22, 0.08);
+}
+
+.hero h1 {
+  font-size: 26px;
+  line-height: 1.2;
+}
+
+.hero p {
+  font-size: 15px;
 }
 
 .chip {
