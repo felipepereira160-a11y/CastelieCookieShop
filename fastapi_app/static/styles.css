@@ -323,6 +323,21 @@ h1, h2, h3 {
   padding: 0;
 }
 
+.theme-actions {
+  display: flex;
+  gap: 10px;
+  margin-top: 8px;
+}
+
+.theme-actions button {
+  border: none;
+  background: var(--caramel);
+  color: var(--paper);
+  padding: 8px 12px;
+  border-radius: 10px;
+  cursor: pointer;
+}
+
 .theme-preview {
   margin-top: 16px;
   display: grid;

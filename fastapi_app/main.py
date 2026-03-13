@@ -302,6 +302,7 @@ def admin(request: Request, msg: str | None = None, git: str | None = None):
             "message": msg or "",
             "git_message": git or "",
             "theme": theme,
+            "theme_defaults": json.dumps(DEFAULT_THEME, ensure_ascii=False, indent=2),
         },
     )
 

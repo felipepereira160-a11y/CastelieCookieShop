@@ -108,7 +108,10 @@
               <label>Fundo (cor 2)</label>
               <input type="color" name="page_bg_2" value="{{ theme.page_bg_2 }}" />
             </div>
-            <button type="submit">Salvar visual</button>
+            <div class="theme-actions">
+              <button type="button" id="theme-reset">Resetar visual</button>
+              <button type="submit">Salvar visual</button>
+            </div>
           </form>
           <div class="theme-preview">
             <strong>Pre-visualizacao</strong>
@@ -139,6 +142,8 @@
       const gitStatusText = document.getElementById('git-status-text');
       const themeForm = document.getElementById('theme-form');
       const themeFrame = document.getElementById('theme-preview-frame');
+      const themeDefaults = {{ theme_defaults | safe }};
+      const themeResetBtn = document.getElementById('theme-reset');
 
       function buildCard(item) {
         const card = document.createElement('div');
@@ -297,8 +302,34 @@
         themeFrame?.addEventListener('load', () => {
           updateThemePreview();
           enableBrandDrag();
+          enableLogoResize();
         });
         updateThemePreview();
+      }
+
+      if (themeResetBtn) {
+        themeResetBtn.addEventListener('click', () => {
+          const setVal = (name, value) => {
+            const el = themeForm.querySelector(`[name="${name}"]`);
+            if (el) el.value = value;
+          };
+          setVal('logo_size', themeDefaults.logo_size);
+          setVal('brand_font_size', themeDefaults.brand_font_size);
+          setVal('brand_letter_spacing', themeDefaults.brand_letter_spacing);
+          setVal('brand_offset_x', 0);
+          setVal('brand_offset_y', 0);
+          setVal('card_radius', themeDefaults.card_radius);
+          setVal('card_shadow', themeDefaults.card_shadow);
+          setVal('hero_radius', themeDefaults.hero_radius);
+          setVal('hero_padding', themeDefaults.hero_padding);
+          setVal('hero_title_size', themeDefaults.hero_title_size);
+          setVal('hero_text_size', themeDefaults.hero_text_size);
+          setVal('button_grad_start', themeDefaults.button_grad_start);
+          setVal('button_grad_end', themeDefaults.button_grad_end);
+          setVal('page_bg_1', themeDefaults.page_bg_1);
+          setVal('page_bg_2', themeDefaults.page_bg_2);
+          updateThemePreview();
+        });
       }
 
       function enableBrandDrag() {
@@ -339,6 +370,57 @@
 
         doc.addEventListener('mouseup', () => {
           dragging = false;
+        });
+      }
+
+      function enableLogoResize() {
+        if (!themeFrame || !themeFrame.contentDocument) return;
+        const doc = themeFrame.contentDocument;
+        const brand = doc.querySelector('.brand');
+        const logo = doc.querySelector('.brand-logo');
+        if (!brand || !logo) return;
+
+        brand.style.position = 'relative';
+
+        let handle = doc.querySelector('.logo-resize-handle');
+        if (!handle) {
+          handle = doc.createElement('div');
+          handle.className = 'logo-resize-handle';
+          handle.style.position = 'absolute';
+          handle.style.width = '10px';
+          handle.style.height = '10px';
+          handle.style.borderRadius = '3px';
+          handle.style.background = '#6b3e2e';
+          handle.style.right = '-8px';
+          handle.style.bottom = '-6px';
+          handle.style.cursor = 'nwse-resize';
+          handle.style.boxShadow = '0 2px 6px rgba(0,0,0,0.2)';
+          brand.appendChild(handle);
+        }
+
+        let resizing = false;
+        let startX = 0;
+        let baseSize = 0;
+
+        const getHidden = (name) => themeForm.querySelector(`[name="${name}"]`);
+
+        handle.addEventListener('mousedown', (event) => {
+          resizing = true;
+          startX = event.clientX;
+          baseSize = parseFloat(getHidden('logo_size').value || 24);
+          event.preventDefault();
+        });
+
+        doc.addEventListener('mousemove', (event) => {
+          if (!resizing) return;
+          const dx = event.clientX - startX;
+          const next = Math.min(80, Math.max(16, baseSize + dx));
+          getHidden('logo_size').value = next.toFixed(0);
+          updateThemePreview();
+        });
+
+        doc.addEventListener('mouseup', () => {
+          resizing = false;
         });
       }
     </script>
