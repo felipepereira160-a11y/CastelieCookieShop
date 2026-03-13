@@ -39,7 +39,7 @@ h1, h2, h3 {
   font-family: 'Playfair Display', serif;
   font-size: calc(var(--theme-brand-font, 16) * 1px);
   font-weight: 700;
-  letter-spacing: calc(var(--theme-brand-letter, 0.22) * 1em);
+  letter-spacing: calc(var(--theme-brand-letter, 1.2) * 1px);
   display: flex;
   align-items: center;
   gap: 8px;
@@ -75,11 +75,20 @@ h1, h2, h3 {
 
 .hero {
   margin: 24px 32px;
-  padding: 24px;
-  border-radius: 18px;
+  padding: calc(var(--theme-hero-padding, 24) * 1px);
+  border-radius: calc(var(--theme-hero-radius, 18) * 1px);
   background: linear-gradient(120deg, #ead8c7 0%, #d9c2ab 45%, #cbaa8e 100%);
   border: 1px solid rgba(54, 33, 22, 0.14);
   box-shadow: 0 16px 40px rgba(54, 33, 22, 0.08);
+}
+
+.hero h1 {
+  font-size: calc(var(--theme-hero-title, 26) * 1px);
+  line-height: 1.2;
+}
+
+.hero p {
+  font-size: calc(var(--theme-hero-text, 15) * 1px);
 }
 
 .hero h1 {

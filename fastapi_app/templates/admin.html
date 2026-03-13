@@ -14,6 +14,10 @@
         --theme-brand-y: {{ theme.brand_offset_y }};
         --theme-card-radius: {{ theme.card_radius }};
         --theme-card-shadow: {{ theme.card_shadow }};
+        --theme-hero-radius: {{ theme.hero_radius }};
+        --theme-hero-padding: {{ theme.hero_padding }};
+        --theme-hero-title: {{ theme.hero_title_size }};
+        --theme-hero-text: {{ theme.hero_text_size }};
         --theme-btn-start: {{ theme.button_grad_start }};
         --theme-btn-end: {{ theme.button_grad_end }};
         --theme-page-bg-1: {{ theme.page_bg_1 }};
@@ -64,15 +68,27 @@
           <form method="post" action="/admin/theme" class="form theme-form" id="theme-form">
             <div class="theme-grid">
               <label>Tamanho da logo (px)</label>
-              <input type="range" name="logo_size" min="12" max="40" value="{{ theme.logo_size }}" />
+              <input type="range" name="logo_size" min="16" max="80" value="{{ theme.logo_size }}" />
 
               <label>Tamanho do titulo (px)</label>
               <input type="range" name="brand_font_size" min="12" max="28" value="{{ theme.brand_font_size }}" />
 
               <label>Espacamento do titulo</label>
-              <input type="range" name="brand_letter_spacing" min="0" max="0.8" step="0.02" value="{{ theme.brand_letter_spacing }}" />
+              <input type="range" name="brand_letter_spacing" min="0" max="6" step="0.1" value="{{ theme.brand_letter_spacing }}" />
               <input type="hidden" name="brand_offset_x" value="{{ theme.brand_offset_x }}" />
               <input type="hidden" name="brand_offset_y" value="{{ theme.brand_offset_y }}" />
+
+              <label>Raio do banner (px)</label>
+              <input type="range" name="hero_radius" min="12" max="32" value="{{ theme.hero_radius }}" />
+
+              <label>Padding do banner (px)</label>
+              <input type="range" name="hero_padding" min="16" max="48" value="{{ theme.hero_padding }}" />
+
+              <label>Titulo do banner (px)</label>
+              <input type="range" name="hero_title_size" min="20" max="36" value="{{ theme.hero_title_size }}" />
+
+              <label>Texto do banner (px)</label>
+              <input type="range" name="hero_text_size" min="12" max="20" value="{{ theme.hero_text_size }}" />
 
               <label>Raio dos cards (px)</label>
               <input type="range" name="card_radius" min="8" max="30" value="{{ theme.card_radius }}" />
@@ -235,6 +251,10 @@
         root.style.setProperty('--theme-brand-y', values.brand_offset_y || 0);
         root.style.setProperty('--theme-card-radius', values.card_radius);
         root.style.setProperty('--theme-card-shadow', values.card_shadow);
+        root.style.setProperty('--theme-hero-radius', values.hero_radius);
+        root.style.setProperty('--theme-hero-padding', values.hero_padding);
+        root.style.setProperty('--theme-hero-title', values.hero_title_size);
+        root.style.setProperty('--theme-hero-text', values.hero_text_size);
         root.style.setProperty('--theme-btn-start', values.button_grad_start);
         root.style.setProperty('--theme-btn-end', values.button_grad_end);
         root.style.setProperty('--theme-page-bg-1', values.page_bg_1);
@@ -249,6 +269,10 @@
           brand_letter_spacing: getVal('brand_letter_spacing'),
           card_radius: getVal('card_radius'),
           card_shadow: getVal('card_shadow'),
+          hero_radius: getVal('hero_radius'),
+          hero_padding: getVal('hero_padding'),
+          hero_title_size: getVal('hero_title_size'),
+          hero_text_size: getVal('hero_text_size'),
           button_grad_start: getVal('button_grad_start'),
           button_grad_end: getVal('button_grad_end'),
           page_bg_1: getVal('page_bg_1'),
