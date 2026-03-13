@@ -310,6 +310,20 @@ h1, h2, h3 {
   padding: 0;
 }
 
+.theme-preview {
+  margin-top: 16px;
+  display: grid;
+  gap: 8px;
+}
+
+.theme-preview iframe {
+  width: 100%;
+  height: 520px;
+  border: 1px solid rgba(54, 33, 22, 0.12);
+  border-radius: 12px;
+  background: #fff;
+}
+
 .payments-toolbar {
   display: flex;
   justify-content: flex-end;

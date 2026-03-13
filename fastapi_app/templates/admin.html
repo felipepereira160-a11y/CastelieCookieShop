@@ -59,7 +59,7 @@
         <div class="card" style="margin-bottom: 16px;">
           <strong>Visual do site</strong>
           <p style="margin: 6px 0 12px;">Ajuste tamanhos e cores principais.</p>
-          <form method="post" action="/admin/theme" class="form theme-form">
+          <form method="post" action="/admin/theme" class="form theme-form" id="theme-form">
             <div class="theme-grid">
               <label>Tamanho da logo (px)</label>
               <input type="range" name="logo_size" min="12" max="40" value="{{ theme.logo_size }}" />
@@ -90,6 +90,10 @@
             </div>
             <button type="submit">Salvar visual</button>
           </form>
+          <div class="theme-preview">
+            <strong>Pre-visualizacao</strong>
+            <iframe id="theme-preview-frame" src="/" title="Preview do site"></iframe>
+          </div>
         </div>
 
         <form method="post" class="form" id="admin-form">
@@ -112,6 +116,8 @@
       const form = document.getElementById('admin-form');
       const jsonInput = document.getElementById('catalog-json');
       const gitStatusText = document.getElementById('git-status-text');
+      const themeForm = document.getElementById('theme-form');
+      const themeFrame = document.getElementById('theme-preview-frame');
 
       function buildCard(item) {
         const card = document.createElement('div');
@@ -212,6 +218,51 @@
 
       if (gitStatusText && gitStatusText.textContent.trim() === 'Verificando...') {
         checkGitStatus();
+      }
+
+      function applyThemeToDocument(doc, values) {
+        if (!doc) return;
+        const root = doc.documentElement;
+        root.style.setProperty('--theme-logo-size', values.logo_size);
+        root.style.setProperty('--theme-brand-font', values.brand_font_size);
+        root.style.setProperty('--theme-brand-letter', values.brand_letter_spacing);
+        root.style.setProperty('--theme-card-radius', values.card_radius);
+        root.style.setProperty('--theme-card-shadow', values.card_shadow);
+        root.style.setProperty('--theme-btn-start', values.button_grad_start);
+        root.style.setProperty('--theme-btn-end', values.button_grad_end);
+        root.style.setProperty('--theme-page-bg-1', values.page_bg_1);
+        root.style.setProperty('--theme-page-bg-2', values.page_bg_2);
+      }
+
+      function readThemeValues() {
+        const getVal = (name) => themeForm.querySelector(`[name="${name}"]`).value;
+        return {
+          logo_size: `${getVal('logo_size')}px`,
+          brand_font_size: `${getVal('brand_font_size')}px`,
+          brand_letter_spacing: `${getVal('brand_letter_spacing')}em`,
+          card_radius: `${getVal('card_radius')}px`,
+          card_shadow: `${getVal('card_shadow')}`,
+          button_grad_start: getVal('button_grad_start'),
+          button_grad_end: getVal('button_grad_end'),
+          page_bg_1: getVal('page_bg_1'),
+          page_bg_2: getVal('page_bg_2'),
+        };
+      }
+
+      function updateThemePreview() {
+        if (!themeForm) return;
+        const values = readThemeValues();
+        applyThemeToDocument(document, values);
+        if (themeFrame && themeFrame.contentDocument) {
+          applyThemeToDocument(themeFrame.contentDocument, values);
+        }
+      }
+
+      if (themeForm) {
+        themeForm.addEventListener('input', updateThemePreview);
+        themeForm.addEventListener('change', updateThemePreview);
+        themeFrame?.addEventListener('load', updateThemePreview);
+        updateThemePreview();
       }
     </script>
   </body>
