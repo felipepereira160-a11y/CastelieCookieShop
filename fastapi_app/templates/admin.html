@@ -65,6 +65,8 @@
       function buildCard(item) {
         const card = document.createElement('div');
         card.className = 'card product-card admin-card';
+        const stockValue = parseInt(item.stock ?? 0, 10);
+        card.classList.add(stockValue > 0 ? 'admin-stock-ok' : 'admin-stock-zero');
         card.innerHTML = `
           <img src="/static/products/${item.id}.jpg" onerror="this.style.display='none'" />
           <label>Nome</label>
@@ -92,6 +94,14 @@
         `;
 
         const uploadBtn = card.querySelector('.upload-btn');
+        const stockInput = card.querySelector('input[data-field="stock"]');
+
+        stockInput.addEventListener('input', () => {
+          const current = parseInt(stockInput.value || 0, 10);
+          card.classList.toggle('admin-stock-ok', current > 0);
+          card.classList.toggle('admin-stock-zero', current <= 0);
+        });
+
         uploadBtn.addEventListener('click', async () => {
           const fileInput = card.querySelector('input[data-field="image"]');
           if (!fileInput.files.length) {

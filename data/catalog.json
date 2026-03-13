@@ -60,6 +60,28 @@
     "highlight": "Premium"
   },
   {
+    "id": "bp_ninho_especial",
+    "name": "Bolo de Pote Ninho Especial",
+    "category": "Bolo de Pote",
+    "price": 13.5,
+    "size": "240ml",
+    "description": "Creme de ninho aveludado com finalizacao de leite em po.",
+    "highlight": "Ninho",
+    "available": true,
+    "stock": 8
+  },
+  {
+    "id": "bp_choco_preto",
+    "name": "Bolo de Pote Chocolate Preto",
+    "category": "Bolo de Pote",
+    "price": 14.0,
+    "size": "240ml",
+    "description": "Chocolate 70% com ganache intensa e toque de cacau.",
+    "highlight": "Intenso",
+    "available": true,
+    "stock": 8
+  },
+  {
     "id": "kit_party",
     "name": "Kit Festa Mini",
     "category": "Kits",

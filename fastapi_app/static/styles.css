@@ -243,6 +243,16 @@ h1, h2, h3 {
   margin-top: 6px;
 }
 
+.admin-card.admin-stock-zero {
+  background: #f6e7e7;
+  border-color: rgba(148, 74, 74, 0.35);
+}
+
+.admin-card.admin-stock-ok {
+  background: #e8f3ea;
+  border-color: rgba(76, 126, 88, 0.35);
+}
+
 .payments-toolbar {
   display: flex;
   justify-content: flex-end;
