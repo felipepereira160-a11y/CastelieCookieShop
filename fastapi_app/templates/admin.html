@@ -69,6 +69,9 @@
         <div class="card" style="margin-bottom: 16px;">
           <strong>Visual do site</strong>
           <p style="margin: 6px 0 12px;">Ajuste tamanhos e cores principais.</p>
+          {% if theme.updated_at %}
+          <div class="theme-last">Ultima atualizacao: {{ theme.updated_at }}</div>
+          {% endif %}
           <form method="post" action="/admin/theme" class="form theme-form" id="theme-form">
             <div class="theme-grid">
               <label>Tamanho da logo (px)</label>
@@ -328,6 +331,7 @@
           enableLogoResize();
           enableLogoDrag();
           enableTextDrag();
+          enableTextResize();
         });
         updateThemePreview();
       }
@@ -488,6 +492,57 @@
 
         doc.addEventListener('mouseup', () => {
           dragging = false;
+        });
+      }
+
+      function enableTextResize() {
+        if (!themeFrame || !themeFrame.contentDocument) return;
+        const doc = themeFrame.contentDocument;
+        const text = doc.querySelector('.brand-text');
+        if (!text) return;
+
+        text.style.position = 'relative';
+        text.style.display = 'inline-flex';
+        text.style.alignItems = 'center';
+
+        let handle = doc.querySelector('.text-resize-handle');
+        if (!handle) {
+          handle = doc.createElement('div');
+          handle.className = 'text-resize-handle';
+          handle.style.position = 'absolute';
+          handle.style.width = '10px';
+          handle.style.height = '10px';
+          handle.style.borderRadius = '3px';
+          handle.style.background = '#6b3e2e';
+          handle.style.right = '-10px';
+          handle.style.bottom = '-6px';
+          handle.style.cursor = 'nwse-resize';
+          handle.style.boxShadow = '0 2px 6px rgba(0,0,0,0.2)';
+          text.appendChild(handle);
+        }
+
+        let resizing = false;
+        let startX = 0;
+        let baseSize = 0;
+        const getHidden = (name) => themeForm.querySelector(`[name="${name}"]`);
+
+        handle.addEventListener('mousedown', (event) => {
+          resizing = true;
+          startX = event.clientX;
+          baseSize = parseFloat(getHidden('brand_font_size').value || 24);
+          event.preventDefault();
+        });
+
+        doc.addEventListener('mousemove', (event) => {
+          if (!resizing) return;
+          const dx = event.clientX - startX;
+          const next = Math.min(200, Math.max(12, baseSize + dx));
+          getHidden('brand_font_size').value = next.toFixed(0);
+          updateThemePreview();
+        });
+
+        doc.addEventListener('mouseup', () => {
+          resizing = false;
         });
       }
 
