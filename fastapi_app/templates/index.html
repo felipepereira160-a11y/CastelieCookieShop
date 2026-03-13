@@ -8,7 +8,10 @@
   </head>
   <body>
     <header class="top-nav">
-      <div class="brand">Castelie Cookie Shop</div>
+      <div class="brand">
+        <img src="/static/logo.jpeg" alt="Castelie Cookie Shop" class="brand-logo" />
+        <span>Castelie Cookie Shop</span>
+      </div>
       <nav>
         <a href="#produtos">Produtos</a>
         <a href="#pedido">Pedido</a>
@@ -44,20 +47,15 @@
           <label>Email</label>
           <input name="email" type="email" />
 
-          <label>Entrega ou retirada</label>
-          <select name="delivery_type">
-            <option value="Entrega">Entrega</option>
-            <option value="Retirada">Retirada</option>
-          </select>
+          <label>Retirada</label>
+          <input type="text" value="Retirada" disabled />
+          <input type="hidden" name="delivery_type" value="Retirada" />
 
           <label>Data</label>
           <input name="delivery_date" type="date" />
 
           <label>Horario</label>
           <input name="delivery_time" type="time" value="15:00" />
-
-          <label>Endereco de entrega</label>
-          <textarea name="address" rows="3"></textarea>
 
           <label>Observacoes</label>
           <textarea name="notes" rows="2"></textarea>

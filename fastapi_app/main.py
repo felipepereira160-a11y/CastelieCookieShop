@@ -389,10 +389,8 @@ async def create_order(payload: Dict[str, Any]):
     if not name or not whatsapp:
         return JSONResponse({"ok": False, "message": "Nome e WhatsApp sao obrigatorios."}, status_code=400)
 
-    delivery_type = payload.get("delivery_type") or "Entrega"
-    address = (payload.get("address") or "").strip()
-    if delivery_type == "Entrega" and not address:
-        return JSONResponse({"ok": False, "message": "Endereco de entrega obrigatorio."}, status_code=400)
+    delivery_type = "Retirada"
+    address = ""
 
     # inventory check
     catalog = load_catalog()
@@ -419,7 +417,7 @@ async def create_order(payload: Dict[str, Any]):
     _commit_with_notice(["data/catalog.json"], "Atualizar estoque")
 
     subtotal = float(payload.get("subtotal") or 0)
-    delivery_fee = 8.0 if delivery_type == "Entrega" else 0.0
+    delivery_fee = 0.0
     total = subtotal + delivery_fee
 
     now = dt.datetime.now()
