@@ -158,12 +158,15 @@ DEFAULT_CATALOG = [
 
 PAYMENT_FIELDS = [
     "cliente",
-    "sem_recheio",
-    "com_recheio",
+    "produto_id",
+    "produto_nome",
+    "quantidade",
     "situacao",
     "valor",
     "valor_pago",
     "observacao",
+    "sem_recheio",
+    "com_recheio",
 ]
 
 app = FastAPI(title="Castelie Cookie Shop")
@@ -292,11 +295,13 @@ def admin_payments(request: Request, msg: str | None = None, git: str | None = N
     if not _is_admin_session(request):
         return templates.TemplateResponse("admin_login.html", {"request": request, "message": msg or ""})
     rows = load_payments()
+    catalog = load_catalog()
     return templates.TemplateResponse(
         "payments.html",
         {
             "request": request,
             "payments_json": json.dumps(rows, ensure_ascii=False, indent=2),
+            "catalog_json": json.dumps(catalog, ensure_ascii=False, indent=2),
             "message": msg or "",
             "git_message": git or "",
         },

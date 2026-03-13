@@ -46,26 +46,48 @@
 
     <script>
       const payments = {{ payments_json | safe }};
+      const catalog = {{ catalog_json | safe }};
       const table = document.getElementById('payments-table');
       const form = document.getElementById('payments-form');
       const jsonInput = document.getElementById('payments-json');
       const addRowBtn = document.getElementById('add-row');
 
       const statusOptions = ['Pago', 'Pendente', 'Parcial', 'Nao pago'];
+      const catalogMap = new Map(catalog.map((item) => [item.id, item]));
 
       function buildRow(row) {
         const wrapper = document.createElement('div');
         wrapper.className = 'payments-row';
         wrapper.innerHTML = `
           <input placeholder="Cliente" value="${row.cliente || ''}" data-field="cliente" />
-          <input type="number" step="0.1" placeholder="Sem recheio" value="${row.sem_recheio || ''}" data-field="sem_recheio" />
-          <input type="number" step="0.1" placeholder="Com recheio" value="${row.com_recheio || ''}" data-field="com_recheio" />
-          <input type="number" step="0.1" placeholder="Valor" value="${row.valor || ''}" data-field="valor" />
+          <select data-field="produto_id"></select>
+          <input type="number" step="1" min="1" placeholder="Qtd" value="${row.quantidade || ''}" data-field="quantidade" />
+          <input type="number" step="0.1" placeholder="Valor" value="${row.valor || ''}" data-field="valor" readonly />
           <select data-field="situacao"></select>
           <input type="number" step="0.1" placeholder="Valor pago" value="${row.valor_pago || ''}" data-field="valor_pago" />
           <input placeholder="Observacao" value="${row.observacao || ''}" data-field="observacao" />
           <button type="button" class="remove-row">Remover</button>
         `;
+        const productSelect = wrapper.querySelector('select[data-field="produto_id"]');
+        const qtyInput = wrapper.querySelector('input[data-field="quantidade"]');
+        const valorInput = wrapper.querySelector('input[data-field="valor"]');
+        const produtoIdAtual = row.produto_id || '';
+
+        const emptyOpt = document.createElement('option');
+        emptyOpt.value = '';
+        emptyOpt.textContent = 'Selecione produto';
+        productSelect.appendChild(emptyOpt);
+
+        catalog.forEach((item) => {
+          const option = document.createElement('option');
+          option.value = item.id;
+          option.textContent = `${item.name} (R$ ${Number(item.price || 0).toFixed(2)})`;
+          if (produtoIdAtual === item.id) {
+            option.selected = true;
+          }
+          productSelect.appendChild(option);
+        });
+
         const select = wrapper.querySelector('select');
         statusOptions.forEach((opt) => {
           const option = document.createElement('option');
@@ -76,6 +98,20 @@
           }
           select.appendChild(option);
         });
+        const updateValor = () => {
+          const produtoId = productSelect.value;
+          const qty = parseInt(qtyInput.value || 0, 10);
+          const produto = catalogMap.get(produtoId);
+          if (!produto || !qty) {
+            return;
+          }
+          const total = Number(produto.price || 0) * qty;
+          valorInput.value = total.toFixed(2);
+        };
+
+        productSelect.addEventListener('change', updateValor);
+        qtyInput.addEventListener('input', updateValor);
+
         wrapper.querySelector('.remove-row').addEventListener('click', () => {
           wrapper.remove();
         });
@@ -94,14 +130,19 @@
       form.addEventListener('submit', () => {
         const rows = Array.from(document.querySelectorAll('.payments-row')).map((row) => {
           const getVal = (field) => row.querySelector(`[data-field="${field}"]`).value;
+          const produtoId = getVal('produto_id');
+          const produto = catalogMap.get(produtoId);
           return {
             cliente: getVal('cliente'),
-            sem_recheio: getVal('sem_recheio'),
-            com_recheio: getVal('com_recheio'),
+            produto_id: produtoId,
+            produto_nome: produto ? produto.name : '',
+            quantidade: getVal('quantidade'),
             situacao: getVal('situacao'),
             valor: getVal('valor'),
             valor_pago: getVal('valor_pago'),
             observacao: getVal('observacao'),
+            sem_recheio: '',
+            com_recheio: '',
           };
         });
         jsonInput.value = JSON.stringify(rows, null, 2);
