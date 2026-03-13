@@ -161,6 +161,7 @@ PAYMENT_FIELDS = [
     "produto_id",
     "produto_nome",
     "quantidade",
+    "data_item",
     "situacao",
     "valor",
     "valor_pago",

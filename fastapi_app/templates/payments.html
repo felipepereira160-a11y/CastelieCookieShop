@@ -33,6 +33,10 @@
           </div>
 
           <div class="payments-table" id="payments-table"></div>
+          <div class="card payments-summary">
+            <h3>Resumo por cliente</h3>
+            <div id="payments-summary-list" class="payments-summary-list"></div>
+          </div>
 
           <textarea name="payments_json" id="payments-json" rows="6" style="display:none;"></textarea>
 
@@ -51,18 +55,23 @@
       const form = document.getElementById('payments-form');
       const jsonInput = document.getElementById('payments-json');
       const addRowBtn = document.getElementById('add-row');
+      const summaryList = document.getElementById('payments-summary-list');
 
       const statusOptions = ['Pago', 'Pendente', 'Parcial', 'Nao pago'];
       const catalogMap = new Map(catalog.map((item) => [item.id, item]));
+      const today = new Date();
+      const todayIso = `${today.getFullYear()}-${String(today.getMonth() + 1).padStart(2, '0')}-${String(today.getDate()).padStart(2, '0')}`;
 
       function buildRow(row) {
         const wrapper = document.createElement('div');
         wrapper.className = 'payments-row';
+        const dataItem = row.data_item || todayIso;
         wrapper.innerHTML = `
           <input placeholder="Cliente" value="${row.cliente || ''}" data-field="cliente" />
           <select data-field="produto_id"></select>
           <input type="number" step="1" min="1" placeholder="Qtd" value="${row.quantidade || ''}" data-field="quantidade" />
           <input type="number" step="0.1" placeholder="Valor" value="${row.valor || ''}" data-field="valor" readonly />
+          <input type="date" value="${dataItem}" data-field="data_item" />
           <select data-field="situacao"></select>
           <input type="number" step="0.1" placeholder="Valor pago" value="${row.valor_pago || ''}" data-field="valor_pago" />
           <input placeholder="Observacao" value="${row.observacao || ''}" data-field="observacao" />
@@ -107,13 +116,19 @@
           }
           const total = Number(produto.price || 0) * qty;
           valorInput.value = total.toFixed(2);
+          updateSummary();
         };
 
         productSelect.addEventListener('change', updateValor);
         qtyInput.addEventListener('input', updateValor);
+        wrapper.querySelector('input[data-field="cliente"]').addEventListener('input', updateSummary);
+        wrapper.querySelector('input[data-field="data_item"]').addEventListener('input', updateSummary);
+        wrapper.querySelector('input[data-field="valor_pago"]').addEventListener('input', updateSummary);
+        wrapper.querySelector('select[data-field="situacao"]').addEventListener('change', updateSummary);
 
         wrapper.querySelector('.remove-row').addEventListener('click', () => {
           wrapper.remove();
+          updateSummary();
         });
         return wrapper;
       }
@@ -125,6 +140,7 @@
 
       addRowBtn.addEventListener('click', () => {
         table.appendChild(buildRow({}));
+        updateSummary();
       });
 
       form.addEventListener('submit', () => {
@@ -137,6 +153,7 @@
             produto_id: produtoId,
             produto_nome: produto ? produto.name : '',
             quantidade: getVal('quantidade'),
+            data_item: getVal('data_item'),
             situacao: getVal('situacao'),
             valor: getVal('valor'),
             valor_pago: getVal('valor_pago'),
@@ -149,6 +166,67 @@
       });
 
       renderRows();
+      updateSummary();
+
+      function formatDateBR(value) {
+        if (!value) return '';
+        const parts = value.split('-');
+        if (parts.length !== 3) return value;
+        return `${parts[2]}/${parts[1]}/${parts[0]}`;
+      }
+
+      function updateSummary() {
+        const rows = Array.from(document.querySelectorAll('.payments-row')).map((row) => {
+          const getVal = (field) => row.querySelector(`[data-field="${field}"]`).value;
+          const produtoId = getVal('produto_id');
+          const produto = catalogMap.get(produtoId);
+          return {
+            cliente: getVal('cliente').trim(),
+            produto_nome: produto ? produto.name : '',
+            quantidade: parseInt(getVal('quantidade') || 0, 10),
+            valor: parseFloat(getVal('valor') || 0),
+            data_item: getVal('data_item'),
+          };
+        });
+
+        const grouped = {};
+        rows.forEach((row) => {
+          if (!row.cliente || !row.produto_nome || !row.quantidade) return;
+          if (!grouped[row.cliente]) {
+            grouped[row.cliente] = { total: 0, items: [] };
+          }
+          grouped[row.cliente].total += row.valor || 0;
+          grouped[row.cliente].items.push({
+            label: `${row.quantidade}x ${row.produto_nome}`,
+            valor: row.valor || 0,
+            data: row.data_item,
+          });
+        });
+
+        summaryList.innerHTML = '';
+        const clients = Object.keys(grouped);
+        if (!clients.length) {
+          summaryList.innerHTML = '<p>Nenhum item selecionado ainda.</p>';
+          return;
+        }
+
+        clients.forEach((cliente) => {
+          const block = document.createElement('div');
+          block.className = 'payments-summary-block';
+          const itemsHtml = grouped[cliente].items
+            .map(
+              (item) =>
+                `<div class="payments-summary-row"><span>${item.label}</span><span>R$ ${item.valor.toFixed(2)}</span><span>${formatDateBR(item.data)}</span></div>`
+            )
+            .join('');
+          block.innerHTML = `
+            <div class="payments-summary-title">${cliente}</div>
+            ${itemsHtml}
+            <div class="payments-summary-total">Total: R$ ${grouped[cliente].total.toFixed(2)}</div>
+          `;
+          summaryList.appendChild(block);
+        });
+      }
     </script>
   </body>
 </html>
