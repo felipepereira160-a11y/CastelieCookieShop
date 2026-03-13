@@ -1,4 +1,4 @@
-﻿# Castelie Cookie Shop
+﻿# Casteli? Cookie Shop
 
 App Streamlit para catalogo, pedidos e area admin.
 

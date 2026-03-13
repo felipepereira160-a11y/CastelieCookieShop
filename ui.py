@@ -184,7 +184,7 @@ def render_top_nav():
     st.markdown("<div class='top-nav'>", unsafe_allow_html=True)
     nav = st.columns([2.6, 1, 1, 1, 1])
     with nav[0]:
-        st.markdown("<div class='brand'>Castelie Cookie Shop</div>", unsafe_allow_html=True)
+        st.markdown("<div class='brand'>Casteliê Cookie Shop</div>", unsafe_allow_html=True)
     with nav[1]:
         st.page_link("app.py", label="Inicio", icon="🏠")
     with nav[2]:

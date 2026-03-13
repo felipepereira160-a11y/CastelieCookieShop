@@ -41,7 +41,7 @@ def _ensure_origin_with_token() -> Tuple[bool, str]:
 
 
 def _ensure_git_identity() -> Tuple[bool, str]:
-    name = os.getenv("GIT_COMMIT_NAME", "Castelie Bot")
+    name = os.getenv("GIT_COMMIT_NAME", "Casteliê Bot")
     email = os.getenv("GIT_COMMIT_EMAIL", "castelie@users.noreply.github.com")
 
     ok, out = _run(["git", "config", "user.name", name])

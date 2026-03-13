@@ -163,6 +163,10 @@ DEFAULT_THEME = {
     "brand_letter_spacing": 1.2,
     "brand_offset_x": 0,
     "brand_offset_y": 0,
+    "logo_offset_x": 0,
+    "logo_offset_y": 0,
+    "text_offset_x": 0,
+    "text_offset_y": 0,
     "card_radius": 18,
     "card_shadow": 0.08,
     "hero_radius": 18,
@@ -189,7 +193,7 @@ PAYMENT_FIELDS = [
     "com_recheio",
 ]
 
-app = FastAPI(title="Castelie Cookie Shop")
+app = FastAPI(title="Casteliê Cookie Shop")
 app.add_middleware(SessionMiddleware, secret_key=os.getenv("ADMIN_SESSION_SECRET", "castelie-secret"))
 app.mount("/static", StaticFiles(directory=str(STATIC_DIR)), name="static")
 if ASSETS_DIR is not None:
@@ -378,6 +382,10 @@ def admin_theme_save(
     brand_letter_spacing: float = Form(1.2),
     brand_offset_x: float = Form(0),
     brand_offset_y: float = Form(0),
+    logo_offset_x: float = Form(0),
+    logo_offset_y: float = Form(0),
+    text_offset_x: float = Form(0),
+    text_offset_y: float = Form(0),
     card_radius: int = Form(18),
     card_shadow: float = Form(0.08),
     hero_radius: int = Form(18),
@@ -397,6 +405,10 @@ def admin_theme_save(
         "brand_letter_spacing": max(0.0, min(6.0, float(brand_letter_spacing))),
         "brand_offset_x": float(brand_offset_x or 0),
         "brand_offset_y": float(brand_offset_y or 0),
+        "logo_offset_x": float(logo_offset_x or 0),
+        "logo_offset_y": float(logo_offset_y or 0),
+        "text_offset_x": float(text_offset_x or 0),
+        "text_offset_y": float(text_offset_y or 0),
         "card_radius": max(8, min(30, int(card_radius))),
         "card_shadow": max(0.02, min(0.2, float(card_shadow))),
         "hero_radius": max(12, min(32, int(hero_radius))),

@@ -3,7 +3,7 @@
   <head>
     <meta charset="utf-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1" />
-    <title>Castelie Cookie Shop</title>
+    <title>Casteliê Cookie Shop</title>
     <link rel="stylesheet" href="/static/styles.css" />
     <style>
       :root {
@@ -12,6 +12,10 @@
         --theme-brand-letter: {{ theme.brand_letter_spacing }};
         --theme-brand-x: {{ theme.brand_offset_x }};
         --theme-brand-y: {{ theme.brand_offset_y }};
+        --theme-logo-x: {{ theme.logo_offset_x }};
+        --theme-logo-y: {{ theme.logo_offset_y }};
+        --theme-text-x: {{ theme.text_offset_x }};
+        --theme-text-y: {{ theme.text_offset_y }};
         --theme-card-radius: {{ theme.card_radius }};
         --theme-card-shadow: {{ theme.card_shadow }};
         --theme-hero-radius: {{ theme.hero_radius }};
@@ -28,8 +32,10 @@
   <body>
     <header class="top-nav">
       <div class="brand">
-        <img src="/static/logo.jpeg" alt="Castelie Cookie Shop" class="brand-logo" />
-        <span class="brand-text">Castelie Cookie Shop</span>
+        <span class="brand-logo-wrap">
+          <img src="/static/logo.jpeg" alt="Casteliê Cookie Shop" class="brand-logo" />
+        </span>
+        <span class="brand-text">Casteliê Cookie Shop</span>
       </div>
       <nav>
         <a href="#produtos">Produtos</a>

@@ -50,6 +50,16 @@ h1, h2, h3 {
   );
 }
 
+.brand-logo-wrap {
+  position: relative;
+  display: inline-flex;
+  align-items: center;
+  transform: translate(
+    calc(var(--theme-logo-x, 0) * 1px),
+    calc(var(--theme-logo-y, 0) * 1px)
+  );
+}
+
 .brand-logo {
   width: calc(var(--theme-logo-size, 24) * 1px);
   height: calc(var(--theme-logo-size, 24) * 1px);
@@ -63,7 +73,11 @@ h1, h2, h3 {
 
 .brand-text {
   font-weight: 700;
-  letter-spacing: 0.35em;
+  letter-spacing: inherit;
+  transform: translate(
+    calc(var(--theme-text-x, 0) * 1px),
+    calc(var(--theme-text-y, 0) * 1px)
+  );
 }
 
 .top-nav nav a {
@@ -89,15 +103,6 @@ h1, h2, h3 {
 
 .hero p {
   font-size: calc(var(--theme-hero-text, 15) * 1px);
-}
-
-.hero h1 {
-  font-size: 26px;
-  line-height: 1.2;
-}
-
-.hero p {
-  font-size: 15px;
 }
 
 .chip {

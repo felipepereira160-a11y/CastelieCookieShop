@@ -3,7 +3,7 @@
   <head>
     <meta charset="utf-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1" />
-    <title>Admin - Castelie</title>
+    <title>Admin - Casteliê</title>
     <link rel="stylesheet" href="/static/styles.css" />
     <style>
       :root {
@@ -12,6 +12,10 @@
         --theme-brand-letter: {{ theme.brand_letter_spacing }};
         --theme-brand-x: {{ theme.brand_offset_x }};
         --theme-brand-y: {{ theme.brand_offset_y }};
+        --theme-logo-x: {{ theme.logo_offset_x }};
+        --theme-logo-y: {{ theme.logo_offset_y }};
+        --theme-text-x: {{ theme.text_offset_x }};
+        --theme-text-y: {{ theme.text_offset_y }};
         --theme-card-radius: {{ theme.card_radius }};
         --theme-card-shadow: {{ theme.card_shadow }};
         --theme-hero-radius: {{ theme.hero_radius }};
@@ -27,7 +31,7 @@
   </head>
   <body>
     <header class="top-nav">
-      <div class="brand">Castelie Cookie Shop</div>
+      <div class="brand">Casteliê Cookie Shop</div>
       <nav>
         <a href="/">Produtos</a>
         <a href="/admin/pagamentos">Pagamentos</a>
@@ -77,6 +81,10 @@
               <input type="range" name="brand_letter_spacing" min="0" max="6" step="0.1" value="{{ theme.brand_letter_spacing }}" />
               <input type="hidden" name="brand_offset_x" value="{{ theme.brand_offset_x }}" />
               <input type="hidden" name="brand_offset_y" value="{{ theme.brand_offset_y }}" />
+              <input type="hidden" name="logo_offset_x" value="{{ theme.logo_offset_x }}" />
+              <input type="hidden" name="logo_offset_y" value="{{ theme.logo_offset_y }}" />
+              <input type="hidden" name="text_offset_x" value="{{ theme.text_offset_x }}" />
+              <input type="hidden" name="text_offset_y" value="{{ theme.text_offset_y }}" />
 
               <label>Raio do banner (px)</label>
               <input type="range" name="hero_radius" min="12" max="32" value="{{ theme.hero_radius }}" />
@@ -254,6 +262,10 @@
         root.style.setProperty('--theme-brand-letter', values.brand_letter_spacing);
         root.style.setProperty('--theme-brand-x', values.brand_offset_x || 0);
         root.style.setProperty('--theme-brand-y', values.brand_offset_y || 0);
+        root.style.setProperty('--theme-logo-x', values.logo_offset_x || 0);
+        root.style.setProperty('--theme-logo-y', values.logo_offset_y || 0);
+        root.style.setProperty('--theme-text-x', values.text_offset_x || 0);
+        root.style.setProperty('--theme-text-y', values.text_offset_y || 0);
         root.style.setProperty('--theme-card-radius', values.card_radius);
         root.style.setProperty('--theme-card-shadow', values.card_shadow);
         root.style.setProperty('--theme-hero-radius', values.hero_radius);
@@ -284,6 +296,10 @@
           page_bg_2: getVal('page_bg_2'),
           brand_offset_x: getVal('brand_offset_x'),
           brand_offset_y: getVal('brand_offset_y'),
+          logo_offset_x: getVal('logo_offset_x'),
+          logo_offset_y: getVal('logo_offset_y'),
+          text_offset_x: getVal('text_offset_x'),
+          text_offset_y: getVal('text_offset_y'),
         };
       }
 
@@ -301,8 +317,9 @@
         themeForm.addEventListener('change', updateThemePreview);
         themeFrame?.addEventListener('load', () => {
           updateThemePreview();
-          enableBrandDrag();
           enableLogoResize();
+          enableLogoDrag();
+          enableTextDrag();
         });
         updateThemePreview();
       }
@@ -318,6 +335,10 @@
           setVal('brand_letter_spacing', themeDefaults.brand_letter_spacing);
           setVal('brand_offset_x', 0);
           setVal('brand_offset_y', 0);
+          setVal('logo_offset_x', 0);
+          setVal('logo_offset_y', 0);
+          setVal('text_offset_x', 0);
+          setVal('text_offset_y', 0);
           setVal('card_radius', themeDefaults.card_radius);
           setVal('card_shadow', themeDefaults.card_shadow);
           setVal('hero_radius', themeDefaults.hero_radius);
@@ -332,11 +353,11 @@
         });
       }
 
-      function enableBrandDrag() {
+      function enableLogoDrag() {
         if (!themeFrame || !themeFrame.contentDocument) return;
         const doc = themeFrame.contentDocument;
-        const brand = doc.querySelector('.brand');
-        if (!brand) return;
+        const logoWrap = doc.querySelector('.brand-logo-wrap');
+        if (!logoWrap) return;
 
         let dragging = false;
         let startX = 0;
@@ -346,14 +367,14 @@
 
         const getHidden = (name) => themeForm.querySelector(`[name="${name}"]`);
 
-        brand.style.cursor = 'move';
+        logoWrap.style.cursor = 'move';
 
-        brand.addEventListener('mousedown', (event) => {
+        logoWrap.addEventListener('mousedown', (event) => {
           dragging = true;
           startX = event.clientX;
           startY = event.clientY;
-          baseX = parseFloat(getHidden('brand_offset_x').value || 0);
-          baseY = parseFloat(getHidden('brand_offset_y').value || 0);
+          baseX = parseFloat(getHidden('logo_offset_x').value || 0);
+          baseY = parseFloat(getHidden('logo_offset_y').value || 0);
           event.preventDefault();
         });
 
@@ -363,8 +384,8 @@
           const dy = event.clientY - startY;
           const nextX = baseX + dx;
           const nextY = baseY + dy;
-          getHidden('brand_offset_x').value = nextX.toFixed(0);
-          getHidden('brand_offset_y').value = nextY.toFixed(0);
+          getHidden('logo_offset_x').value = nextX.toFixed(0);
+          getHidden('logo_offset_y').value = nextY.toFixed(0);
           updateThemePreview();
         });
 
@@ -376,11 +397,8 @@
       function enableLogoResize() {
         if (!themeFrame || !themeFrame.contentDocument) return;
         const doc = themeFrame.contentDocument;
-        const brand = doc.querySelector('.brand');
-        const logo = doc.querySelector('.brand-logo');
-        if (!brand || !logo) return;
-
-        brand.style.position = 'relative';
+        const logoWrap = doc.querySelector('.brand-logo-wrap');
+        if (!logoWrap) return;
 
         let handle = doc.querySelector('.logo-resize-handle');
         if (!handle) {
@@ -395,7 +413,7 @@
           handle.style.bottom = '-6px';
           handle.style.cursor = 'nwse-resize';
           handle.style.boxShadow = '0 2px 6px rgba(0,0,0,0.2)';
-          brand.appendChild(handle);
+          logoWrap.appendChild(handle);
         }
 
         let resizing = false;
@@ -421,6 +439,47 @@
 
         doc.addEventListener('mouseup', () => {
           resizing = false;
+        });
+      }
+
+      function enableTextDrag() {
+        if (!themeFrame || !themeFrame.contentDocument) return;
+        const doc = themeFrame.contentDocument;
+        const text = doc.querySelector('.brand-text');
+        if (!text) return;
+
+        let dragging = false;
+        let startX = 0;
+        let startY = 0;
+        let baseX = 0;
+        let baseY = 0;
+
+        const getHidden = (name) => themeForm.querySelector(`[name="${name}"]`);
+
+        text.style.cursor = 'move';
+
+        text.addEventListener('mousedown', (event) => {
+          dragging = true;
+          startX = event.clientX;
+          startY = event.clientY;
+          baseX = parseFloat(getHidden('text_offset_x').value || 0);
+          baseY = parseFloat(getHidden('text_offset_y').value || 0);
+          event.preventDefault();
+        });
+
+        doc.addEventListener('mousemove', (event) => {
+          if (!dragging) return;
+          const dx = event.clientX - startX;
+          const dy = event.clientY - startY;
+          const nextX = baseX + dx;
+          const nextY = baseY + dy;
+          getHidden('text_offset_x').value = nextX.toFixed(0);
+          getHidden('text_offset_y').value = nextY.toFixed(0);
+          updateThemePreview();
+        });
+
+        doc.addEventListener('mouseup', () => {
+          dragging = false;
         });
       }
     </script>
