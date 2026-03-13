@@ -5,11 +5,24 @@
     <meta name="viewport" content="width=device-width, initial-scale=1" />
     <title>Castelie Cookie Shop</title>
     <link rel="stylesheet" href="/static/styles.css" />
+    <style>
+      :root {
+        --theme-logo-size: {{ theme.logo_size }};
+        --theme-brand-font: {{ theme.brand_font_size }};
+        --theme-brand-letter: {{ theme.brand_letter_spacing }};
+        --theme-card-radius: {{ theme.card_radius }};
+        --theme-card-shadow: {{ theme.card_shadow }};
+        --theme-btn-start: {{ theme.button_grad_start }};
+        --theme-btn-end: {{ theme.button_grad_end }};
+        --theme-page-bg-1: {{ theme.page_bg_1 }};
+        --theme-page-bg-2: {{ theme.page_bg_2 }};
+      }
+    </style>
   </head>
   <body>
     <header class="top-nav">
       <div class="brand">
-        <img src="/static/logo.jpeg" alt="Castelie Cookie Shop" class="brand-logo" width="24" height="24" />
+        <img src="/static/logo.jpeg" alt="Castelie Cookie Shop" class="brand-logo" />
         <span class="brand-text">Castelie Cookie Shop</span>
       </div>
       <nav>

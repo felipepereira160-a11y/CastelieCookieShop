@@ -5,6 +5,19 @@
     <meta name="viewport" content="width=device-width, initial-scale=1" />
     <title>Admin - Castelie</title>
     <link rel="stylesheet" href="/static/styles.css" />
+    <style>
+      :root {
+        --theme-logo-size: {{ theme.logo_size }};
+        --theme-brand-font: {{ theme.brand_font_size }};
+        --theme-brand-letter: {{ theme.brand_letter_spacing }};
+        --theme-card-radius: {{ theme.card_radius }};
+        --theme-card-shadow: {{ theme.card_shadow }};
+        --theme-btn-start: {{ theme.button_grad_start }};
+        --theme-btn-end: {{ theme.button_grad_end }};
+        --theme-page-bg-1: {{ theme.page_bg_1 }};
+        --theme-page-bg-2: {{ theme.page_bg_2 }};
+      }
+    </style>
   </head>
   <body>
     <header class="top-nav">
@@ -42,6 +55,42 @@
           </div>
         </div>
         {% endif %}
+
+        <div class="card" style="margin-bottom: 16px;">
+          <strong>Visual do site</strong>
+          <p style="margin: 6px 0 12px;">Ajuste tamanhos e cores principais.</p>
+          <form method="post" action="/admin/theme" class="form theme-form">
+            <div class="theme-grid">
+              <label>Tamanho da logo (px)</label>
+              <input type="range" name="logo_size" min="12" max="40" value="{{ theme.logo_size }}" />
+
+              <label>Tamanho do titulo (px)</label>
+              <input type="range" name="brand_font_size" min="12" max="28" value="{{ theme.brand_font_size }}" />
+
+              <label>Espacamento do titulo</label>
+              <input type="range" name="brand_letter_spacing" min="0" max="0.8" step="0.02" value="{{ theme.brand_letter_spacing }}" />
+
+              <label>Raio dos cards (px)</label>
+              <input type="range" name="card_radius" min="8" max="30" value="{{ theme.card_radius }}" />
+
+              <label>Sombra dos cards</label>
+              <input type="range" name="card_shadow" min="0.02" max="0.2" step="0.01" value="{{ theme.card_shadow }}" />
+
+              <label>Gradiente botao (inicio)</label>
+              <input type="color" name="button_grad_start" value="{{ theme.button_grad_start }}" />
+
+              <label>Gradiente botao (fim)</label>
+              <input type="color" name="button_grad_end" value="{{ theme.button_grad_end }}" />
+
+              <label>Fundo (cor 1)</label>
+              <input type="color" name="page_bg_1" value="{{ theme.page_bg_1 }}" />
+
+              <label>Fundo (cor 2)</label>
+              <input type="color" name="page_bg_2" value="{{ theme.page_bg_2 }}" />
+            </div>
+            <button type="submit">Salvar visual</button>
+          </form>
+        </div>
 
         <form method="post" class="form" id="admin-form">
           <label>Produtos</label>

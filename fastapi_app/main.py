@@ -49,6 +49,7 @@ def _resolve_assets_dir() -> Path | None:
 DATA_DIR = _resolve_data_dir()
 CATALOG_PATH = DATA_DIR / "catalog.json"
 PAYMENTS_PATH = DATA_DIR / "pagamentos.csv"
+THEME_PATH = DATA_DIR / "theme.json"
 ASSETS_DIR = _resolve_assets_dir()
 STATIC_DIR = APP_ROOT / "static"
 STATIC_PRODUCTS_DIR = STATIC_DIR / "products"
@@ -156,6 +157,18 @@ DEFAULT_CATALOG = [
     },
 ]
 
+DEFAULT_THEME = {
+    "logo_size": 24,
+    "brand_font_size": 16,
+    "brand_letter_spacing": 0.22,
+    "card_radius": 18,
+    "card_shadow": 0.08,
+    "button_grad_start": "#9b5b2f",
+    "button_grad_end": "#b47445",
+    "page_bg_1": "#f3e7db",
+    "page_bg_2": "#ead8c7",
+}
+
 PAYMENT_FIELDS = [
     "cliente",
     "produto_id",
@@ -225,6 +238,26 @@ def save_payments(rows: List[Dict[str, Any]]) -> None:
             writer.writerow({field: row.get(field, "") for field in PAYMENT_FIELDS})
 
 
+def load_theme() -> Dict[str, Any]:
+    if not THEME_PATH.exists():
+        return DEFAULT_THEME.copy()
+    try:
+        text = THEME_PATH.read_text(encoding="utf-8-sig")
+        data = json.loads(text)
+        if not isinstance(data, dict):
+            return DEFAULT_THEME.copy()
+        merged = DEFAULT_THEME.copy()
+        merged.update({k: v for k, v in data.items() if v is not None})
+        return merged
+    except Exception:
+        return DEFAULT_THEME.copy()
+
+
+def save_theme(theme: Dict[str, Any]) -> None:
+    THEME_PATH.parent.mkdir(parents=True, exist_ok=True)
+    THEME_PATH.write_text(json.dumps(theme, ensure_ascii=False, indent=2), encoding="utf-8")
+
+
 def _admin_creds() -> tuple[str, str]:
     user = os.getenv("ADMIN_USER", "admin")
     pw = os.getenv("ADMIN_PASS", "C34bs###2028")
@@ -243,7 +276,8 @@ def _commit_with_notice(paths: List[str], message: str) -> Dict[str, Any]:
 
 @app.get("/", response_class=HTMLResponse)
 def index(request: Request):
-    return templates.TemplateResponse("index.html", {"request": request})
+    theme = load_theme()
+    return templates.TemplateResponse("index.html", {"request": request, "theme": theme})
 
 
 @app.get("/admin", response_class=HTMLResponse)
@@ -252,6 +286,7 @@ def admin(request: Request, msg: str | None = None, git: str | None = None):
         return templates.TemplateResponse("admin_login.html", {"request": request, "message": msg or ""})
     catalog = load_catalog()
     payments = load_payments()
+    theme = load_theme()
     return templates.TemplateResponse(
         "admin.html",
         {
@@ -260,6 +295,7 @@ def admin(request: Request, msg: str | None = None, git: str | None = None):
             "payments_preview": payments[:8],
             "message": msg or "",
             "git_message": git or "",
+            "theme": theme,
         },
     )
 
@@ -297,6 +333,7 @@ def admin_payments(request: Request, msg: str | None = None, git: str | None = N
         return templates.TemplateResponse("admin_login.html", {"request": request, "message": msg or ""})
     rows = load_payments()
     catalog = load_catalog()
+    theme = load_theme()
     return templates.TemplateResponse(
         "payments.html",
         {
@@ -305,6 +342,7 @@ def admin_payments(request: Request, msg: str | None = None, git: str | None = N
             "catalog_json": json.dumps(catalog, ensure_ascii=False, indent=2),
             "message": msg or "",
             "git_message": git or "",
+            "theme": theme,
         },
     )
 
@@ -323,6 +361,38 @@ def admin_save(request: Request, catalog_json: str = Form("")):
         return admin(request, msg=msg, git=git["message"])
     except Exception as exc:
         return admin(request, msg=f"Erro ao salvar: {exc}")
+
+
+@app.post("/admin/theme", response_class=HTMLResponse)
+def admin_theme_save(
+    request: Request,
+    logo_size: int = Form(24),
+    brand_font_size: int = Form(16),
+    brand_letter_spacing: float = Form(0.22),
+    card_radius: int = Form(18),
+    card_shadow: float = Form(0.08),
+    button_grad_start: str = Form("#9b5b2f"),
+    button_grad_end: str = Form("#b47445"),
+    page_bg_1: str = Form("#f3e7db"),
+    page_bg_2: str = Form("#ead8c7"),
+):
+    if not _is_admin_session(request):
+        return templates.TemplateResponse("admin_login.html", {"request": request, "message": "Login necessario."})
+    theme = {
+        "logo_size": max(12, min(40, int(logo_size))),
+        "brand_font_size": max(12, min(28, int(brand_font_size))),
+        "brand_letter_spacing": max(0.0, min(0.8, float(brand_letter_spacing))),
+        "card_radius": max(8, min(30, int(card_radius))),
+        "card_shadow": max(0.02, min(0.2, float(card_shadow))),
+        "button_grad_start": button_grad_start.strip(),
+        "button_grad_end": button_grad_end.strip(),
+        "page_bg_1": page_bg_1.strip(),
+        "page_bg_2": page_bg_2.strip(),
+    }
+    save_theme(theme)
+    git = _commit_with_notice(["data/theme.json"], "Atualizar tema visual")
+    msg = "Tema visual atualizado."
+    return admin(request, msg=msg, git=git["message"])
 
 
 @app.post("/admin/pagamentos", response_class=HTMLResponse)
