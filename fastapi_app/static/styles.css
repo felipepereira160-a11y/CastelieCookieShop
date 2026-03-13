@@ -16,9 +16,10 @@ body {
   margin: 0;
   font-family: 'Source Sans 3', sans-serif;
   color: var(--cocoa);
-  background: radial-gradient(1200px 600px at 10% -10%, var(--theme-page-bg-1, #ebdccb) 0%, rgba(235, 220, 203, 0.6) 50%, rgba(235, 220, 203, 0) 70%),
-    radial-gradient(900px 500px at 90% 0%, var(--theme-page-bg-2, #d9c5b3) 0%, rgba(217, 197, 179, 0.4) 45%, rgba(217, 197, 179, 0) 70%),
-    var(--cream);
+  background:
+    radial-gradient(1200px 600px at 10% -10%, var(--theme-page-bg-1, #ebdccb) 0%, rgba(235, 220, 203, 0.5) 50%, rgba(235, 220, 203, 0) 70%),
+    radial-gradient(900px 500px at 90% 0%, var(--theme-page-bg-2, #d9c5b3) 0%, rgba(217, 197, 179, 0.35) 45%, rgba(217, 197, 179, 0) 70%),
+    linear-gradient(180deg, #f7efe7 0%, #f1e5d8 40%, #eadacb 100%);
 }
 
 h1, h2, h3 {
@@ -30,9 +31,13 @@ h1, h2, h3 {
   display: flex;
   justify-content: space-between;
   align-items: center;
-  padding: 10px 28px;
-  background: var(--sand);
+  padding: 12px 32px;
+  background: rgba(243, 229, 214, 0.92);
   border-bottom: 1px solid rgba(54, 33, 22, 0.12);
+  box-shadow: 0 6px 18px rgba(54, 33, 22, 0.08);
+  position: sticky;
+  top: 0;
+  z-index: 50;
 }
 
 .brand {
@@ -87,19 +92,35 @@ h1, h2, h3 {
   font-weight: 600;
   text-decoration: none;
   letter-spacing: 0.04em;
+  padding: 6px 10px;
+  border-radius: 999px;
 }
 
 .top-nav nav a:hover {
   color: #4b2a15;
+  background: rgba(107, 62, 46, 0.08);
 }
 
 .hero {
-  margin: 18px 28px;
+  margin: 18px 32px;
   padding: calc(var(--theme-hero-padding, 24) * 1px);
   border-radius: calc(var(--theme-hero-radius, 18) * 1px);
-  background: linear-gradient(120deg, #f1e2d3 0%, #ddc2a9 45%, #c9a98a 100%);
+  background: linear-gradient(120deg, #f3e2d2 0%, #dbc0a6 45%, #c9a98a 100%);
   border: 1px solid rgba(54, 33, 22, 0.14);
-  box-shadow: 0 16px 40px rgba(54, 33, 22, 0.08);
+  box-shadow: 0 20px 46px rgba(54, 33, 22, 0.14);
+  position: relative;
+  overflow: hidden;
+}
+
+.hero::after {
+  content: "";
+  position: absolute;
+  right: -40px;
+  top: -40px;
+  width: 220px;
+  height: 220px;
+  background: radial-gradient(circle, rgba(255, 255, 255, 0.45) 0%, rgba(255, 255, 255, 0) 70%);
+  pointer-events: none;
 }
 
 .hero h1 {
@@ -128,7 +149,7 @@ h1, h2, h3 {
   display: grid;
   grid-template-columns: 2.5fr 1fr;
   gap: 24px;
-  padding: 0 28px 32px;
+  padding: 0 32px 32px;
 }
 
 .products h2, .order h2 {
@@ -139,6 +160,11 @@ h1, h2, h3 {
   display: flex;
   gap: 12px;
   margin-bottom: 16px;
+  padding: 12px;
+  border-radius: 16px;
+  background: rgba(255, 250, 245, 0.75);
+  border: 1px solid rgba(54, 33, 22, 0.12);
+  box-shadow: 0 8px 18px rgba(54, 33, 22, 0.08);
 }
 
 .filters input, .filters select {
@@ -160,18 +186,19 @@ h1, h2, h3 {
   background: var(--paper);
   border-radius: calc(var(--theme-card-radius, 18) * 1px);
   border: 1px solid rgba(54, 33, 22, 0.12);
-  box-shadow: 0 8px 20px rgba(54, 33, 22, calc(var(--theme-card-shadow, 0.08)));
+  box-shadow: 0 10px 26px rgba(54, 33, 22, calc(var(--theme-card-shadow, 0.1)));
   padding: 16px;
   transition: transform 0.18s ease, box-shadow 0.18s ease;
 }
 
 .product-card {
   min-height: 360px;
+  background: #fffaf6;
 }
 
 .product-card img {
   width: 100%;
-  height: 160px;
+  height: 170px;
   object-fit: cover;
   border-radius: 12px;
   margin-bottom: 12px;
@@ -253,11 +280,11 @@ h1, h2, h3 {
 }
 
 .order {
-  background: rgba(250, 245, 238, 0.75);
-  border-radius: 18px;
-  padding: 14px;
+  background: rgba(255, 250, 244, 0.9);
+  border-radius: 20px;
+  padding: 16px;
   border: 1px solid rgba(54, 33, 22, 0.12);
-  box-shadow: 0 10px 24px rgba(54, 33, 22, 0.08);
+  box-shadow: 0 14px 30px rgba(54, 33, 22, 0.12);
 }
 
 .order input, .order select, .order textarea {
