@@ -44,6 +44,10 @@ h1, h2, h3 {
   align-items: center;
   gap: 8px;
   text-transform: uppercase;
+  transform: translate(
+    calc(var(--theme-brand-x, 0) * 1px),
+    calc(var(--theme-brand-y, 0) * 1px)
+  );
 }
 
 .brand-logo {
@@ -314,6 +318,11 @@ h1, h2, h3 {
   margin-top: 16px;
   display: grid;
   gap: 8px;
+}
+
+.theme-hint {
+  font-size: 0.85rem;
+  color: rgba(34, 21, 15, 0.7);
 }
 
 .theme-preview iframe {

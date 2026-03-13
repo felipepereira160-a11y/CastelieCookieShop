@@ -10,6 +10,8 @@
         --theme-logo-size: {{ theme.logo_size }};
         --theme-brand-font: {{ theme.brand_font_size }};
         --theme-brand-letter: {{ theme.brand_letter_spacing }};
+        --theme-brand-x: {{ theme.brand_offset_x }};
+        --theme-brand-y: {{ theme.brand_offset_y }};
         --theme-card-radius: {{ theme.card_radius }};
         --theme-card-shadow: {{ theme.card_shadow }};
         --theme-btn-start: {{ theme.button_grad_start }};
@@ -69,6 +71,8 @@
 
               <label>Espacamento do titulo</label>
               <input type="range" name="brand_letter_spacing" min="0" max="0.8" step="0.02" value="{{ theme.brand_letter_spacing }}" />
+              <input type="hidden" name="brand_offset_x" value="{{ theme.brand_offset_x }}" />
+              <input type="hidden" name="brand_offset_y" value="{{ theme.brand_offset_y }}" />
 
               <label>Raio dos cards (px)</label>
               <input type="range" name="card_radius" min="8" max="30" value="{{ theme.card_radius }}" />
@@ -92,6 +96,7 @@
           </form>
           <div class="theme-preview">
             <strong>Pre-visualizacao</strong>
+            <div class="theme-hint">Arraste o logo/titulo no preview para reposicionar.</div>
             <iframe id="theme-preview-frame" src="/" title="Preview do site"></iframe>
           </div>
         </div>
@@ -226,6 +231,8 @@
         root.style.setProperty('--theme-logo-size', values.logo_size);
         root.style.setProperty('--theme-brand-font', values.brand_font_size);
         root.style.setProperty('--theme-brand-letter', values.brand_letter_spacing);
+        root.style.setProperty('--theme-brand-x', values.brand_offset_x || 0);
+        root.style.setProperty('--theme-brand-y', values.brand_offset_y || 0);
         root.style.setProperty('--theme-card-radius', values.card_radius);
         root.style.setProperty('--theme-card-shadow', values.card_shadow);
         root.style.setProperty('--theme-btn-start', values.button_grad_start);
@@ -237,15 +244,17 @@
       function readThemeValues() {
         const getVal = (name) => themeForm.querySelector(`[name="${name}"]`).value;
         return {
-          logo_size: `${getVal('logo_size')}px`,
-          brand_font_size: `${getVal('brand_font_size')}px`,
-          brand_letter_spacing: `${getVal('brand_letter_spacing')}em`,
-          card_radius: `${getVal('card_radius')}px`,
-          card_shadow: `${getVal('card_shadow')}`,
+          logo_size: getVal('logo_size'),
+          brand_font_size: getVal('brand_font_size'),
+          brand_letter_spacing: getVal('brand_letter_spacing'),
+          card_radius: getVal('card_radius'),
+          card_shadow: getVal('card_shadow'),
           button_grad_start: getVal('button_grad_start'),
           button_grad_end: getVal('button_grad_end'),
           page_bg_1: getVal('page_bg_1'),
           page_bg_2: getVal('page_bg_2'),
+          brand_offset_x: getVal('brand_offset_x'),
+          brand_offset_y: getVal('brand_offset_y'),
         };
       }
 
@@ -261,8 +270,52 @@
       if (themeForm) {
         themeForm.addEventListener('input', updateThemePreview);
         themeForm.addEventListener('change', updateThemePreview);
-        themeFrame?.addEventListener('load', updateThemePreview);
+        themeFrame?.addEventListener('load', () => {
+          updateThemePreview();
+          enableBrandDrag();
+        });
         updateThemePreview();
+      }
+
+      function enableBrandDrag() {
+        if (!themeFrame || !themeFrame.contentDocument) return;
+        const doc = themeFrame.contentDocument;
+        const brand = doc.querySelector('.brand');
+        if (!brand) return;
+
+        let dragging = false;
+        let startX = 0;
+        let startY = 0;
+        let baseX = 0;
+        let baseY = 0;
+
+        const getHidden = (name) => themeForm.querySelector(`[name="${name}"]`);
+
+        brand.style.cursor = 'move';
+
+        brand.addEventListener('mousedown', (event) => {
+          dragging = true;
+          startX = event.clientX;
+          startY = event.clientY;
+          baseX = parseFloat(getHidden('brand_offset_x').value || 0);
+          baseY = parseFloat(getHidden('brand_offset_y').value || 0);
+          event.preventDefault();
+        });
+
+        doc.addEventListener('mousemove', (event) => {
+          if (!dragging) return;
+          const dx = event.clientX - startX;
+          const dy = event.clientY - startY;
+          const nextX = baseX + dx;
+          const nextY = baseY + dy;
+          getHidden('brand_offset_x').value = nextX.toFixed(0);
+          getHidden('brand_offset_y').value = nextY.toFixed(0);
+          updateThemePreview();
+        });
+
+        doc.addEventListener('mouseup', () => {
+          dragging = false;
+        });
       }
     </script>
   </body>
