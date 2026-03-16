@@ -8,7 +8,7 @@ from pathlib import Path
 from typing import Any, Dict, List
 
 from fastapi import FastAPI, Request, Form, UploadFile, File
-from fastapi.responses import HTMLResponse, JSONResponse, RedirectResponse
+from fastapi.responses import HTMLResponse, JSONResponse, RedirectResponse, PlainTextResponse
 from fastapi.staticfiles import StaticFiles
 from fastapi.templating import Jinja2Templates
 from starlette.middleware.sessions import SessionMiddleware
@@ -289,6 +289,11 @@ def _commit_with_notice(paths: List[str], message: str) -> Dict[str, Any]:
 def index(request: Request):
     theme = load_theme()
     return templates.TemplateResponse("index.html", {"request": request, "theme": theme})
+
+
+@app.get("/ping", response_class=PlainTextResponse)
+def ping():
+    return "OK"
 
 
 @app.get("/admin", response_class=HTMLResponse)
